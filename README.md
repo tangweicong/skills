@@ -6,7 +6,7 @@
 
 | Skill | 一句话 | 主要产出 |
 |-------|--------|----------|
-| [best-minds-grounded](./skills/best-minds-grounded/) | 先查证，再模拟最懂的人怎么说 | 对话中的专家视角分析 |
+| [best-minds-grounded](./skills/best-minds-grounded/) | 先查证，再模拟最懂的人怎么说（含选用理由） | 对话中的专家视角分析 |
 | [idea-discuss](./skills/idea-discuss/) | 以实现为导向的多轮讨论留痕 | `docs/discuss/` |
 | [idea-pmo](./skills/idea-pmo/) | 承接决定，做 PMP 分层规划 + GATE | `docs/pmo/` |
 
@@ -68,7 +68,7 @@ ln -s "$(pwd)/skills/idea-pmo"             ~/.cursor/skills/idea-pmo
 1. 轻量框定：列出 TA 会先确认的 3–5 个事实问题
 2. 定向 WebSearch（官方 docs / repo / issue / RFC）
 3. 识别或锁定专家（用户指定优先）
-4. 输出：有出处的「会说的」+ 标注清晰的「外推」
+4. 输出：每位 TA 先写 **选用理由**，再有出处的「会说的」+ 标注清晰的「外推」
 
 **触发词示例**：最强大脑 · 谁最懂这个 · 以 X 视角 · 模拟 Y · 指定专家 · 没有现成方案 · best-minds-grounded
 
