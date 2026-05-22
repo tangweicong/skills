@@ -1,0 +1,26 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# Python (scripts/)
+__pycache__/
+*.py[cod]
+.venv/
+.python-version
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Local / scratch
+*.local
+.scratch/

@@ -1,0 +1,12 @@
+[project]
+name = "skills-repo-tools"
+version = "0.1.0"
+description = "Validation tools for the skills collection repository"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[tool.uv]
+dev-dependencies = []
