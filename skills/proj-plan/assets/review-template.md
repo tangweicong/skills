@@ -16,7 +16,7 @@
 | 条件 | 动作 |
 |------|------|
 | acceptance **通过** | 允许规划/进入 `phase-{NN+1}`（更新 roadmap 若需） |
-| acceptance **不通过** | **禁止**下阶段 plan；在本阶段修订或回 idea-discuss |
+| acceptance **不通过** | **禁止**下阶段 plan；在本阶段修订或回 proj-shape |
 | EXP **failed** | 暂停；change-log 或 DECISIONS 标 failed；回 discuss |
 
 ## 问题

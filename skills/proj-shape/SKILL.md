@@ -1,46 +1,63 @@
 ---
-name: idea-discuss
+name: proj-shape
 description: >-
-  Implementation-oriented discussion framework (SDD-inspired): refines fuzzy
-  ideas via docs/discuss/NN-topic.md + DECISIONS.md; for unsolved or frontier topics
-  defines verifiable spikes with continue/stop criteria for later implementation
-  (not MVP/schedules here). Pairs with best-minds-grounded and idea-pmo.
-  Use for 想法讨论,
-  前沿方案, 无现成解法, 可验证尝试, 讨论是否足够, docs/discuss/ artifacts.
+  Multi-round implementation-oriented discussion framework (SDD-inspired): refines
+  fuzzy ideas via docs/discuss/NN-topic.md + DECISIONS.md; maintains method-agnostic
+  "facts / reasoning / unverified" 3-way separation; for unsolved or frontier topics
+  defines verifiable spikes (EXP-xx) with continue/stop criteria for later
+  implementation (not MVP/schedules here). Default analysis-layer method is
+  proj-experts; pluggable—user may pick other discussion-method skills
+  (e.g. pre-mortem, socratic, five-whys) per round. Provides commitment-fields for
+  downstream proj-plan. Use for 想法讨论, 多轮细化, 模糊变明确, 前沿方案, 无现成解法,
+  可验证尝试, 讨论是否足够, docs/discuss/ artifacts, 切换讨论方法.
 compatibility: >-
-  Recommended: best-minds-grounded (or WebSearch when unavailable). Writes files
-  under project-root docs/discuss/.
+  Default analysis method: proj-experts (pluggable, user-selectable). Writes
+  files under project-root docs/discuss/. Downstream: proj-plan reads DECISIONS.md.
 ---
 
 <!--
 input: 用户模糊想法、每轮讨论反馈
 output: docs/discuss/NN-主题.md + DECISIONS.md（决定 + 待验证尝试 + 讨论状态）；不含 MVP/排期/编码
-pos: 主 skill（以实现为导向的讨论 + 文档化）；分析层配合 best-minds-grounded
+pos: 主 skill（以实现为导向的讨论 + 文档化）；分析层默认调用 proj-experts，可替换为其他讨论方法 skill
 
-与 best-minds-grounded 分工：
-- best-minds-grounded → 查证、谁最懂、专家视角分析/外推（分析层，完整执行）
-- idea-discuss（本 skill）→ 讨论框架、留痕、决定汇总、可验证尝试与继续/中止标准、讨论就绪判断；写入层按争议/收敛分级重组（非原样粘贴 best-minds 格式）
+层级分工（讨论框架层 vs 方法实现层）：
+- proj-shape（本 skill，框架层）→ 多轮讨论流程、轮次留痕、DECISIONS 汇总、可验证尝试与继续/中止、讨论就绪判断；维护「已查证事实 / 推理 / 待验证假设」三分离（方法无关）
+- proj-experts（方法层，默认）→ 谁最懂、事实查证、专家视角，输出按其【原话】/【已公开立场】/【模拟推理】三档标签
+- 其他方法 skill（方法层，可替换）→ 如 pre-mortem、socratic、five-whys 等；输出按其自身约定，但须落入框架层"事实/推理/待验证"三分类，推理类须可追溯（来源/原则/URL）
 
-不含：MVP 细则、里程碑排期、具体实现步骤（由后续落地 skill/任务执行；本 skill 只定义「试什么、何时继续/停」）
+不含：MVP 细则、里程碑排期、具体实现步骤（由后续 proj-plan 或对话执行；本 skill 只定义「试什么、何时继续/停」）
+
+本版改动（解耦讨论方法）：
+1. 与 proj-experts 改为"默认推荐"而非"必须配合"——支持未来接入其他方法 skill（pre-mortem 等）
+2. 三分离术语统一为"事实/推理/待验证"（方法无关）；具体方法的内部标签（如 best-minds 的三档）作为方法 skill 内部细节，本文件不再复述
+3. 新增"讨论方法的最小约定"段——方法 skill 的输出契约
+4. 新增"对 proj-plan 的承诺字段"段——明确下游 proj-plan 需要读到什么
+5. round-template.md frontmatter 加 discussion_method 字段（默认 proj-experts）
 
 修改本文件后，请同步更新 skills/README.md 的「现有 skills」表格。
 -->
 
-# Idea Discuss（想法讨论）
+# 想法收敛（proj-shape）
 
 以 **AI 为杠杆、以实现为讨论终点**：把模糊想法通过多轮留痕讨论磨清楚——客观、理性；不是泼冷水，也不是谄媚。使用者只需提供模糊想法，本 skill 负责提问、查证、结构化与沉淀。
 
 **讨论归本 skill；编码与排期不归本 skill。** 对尚无现成解法或科研前沿的方向，讨论产出必须是**可交给落地阶段去跑验证**的尝试方案，并写明**继续**与**中止**标准。
 
-## 与 best-minds-grounded 的分工
+## 与分析层方法 skill 的分工
 
-| | best-minds-grounded | idea-discuss（本 skill） |
-|---|---------------------|--------------------------|
-| 核心问题 | 谁最懂？事实是什么？TA 会怎么说？ | 为实现还要弄清什么？试什么？何时继续/停？ |
-| 产出 | 查证、专家视角、标注外推 | `docs/discuss/` 轮次文档 + `DECISIONS.md`（决定、待验证尝试、讨论状态） |
-| 边界 | 可单独用于纯分析 | **不写** MVP/排期/代码；**可写** 验证尝试、继续/中止闸门、就绪判断 |
+proj-shape 是**讨论框架**，分析层调用一个**讨论方法 skill** 来产出本轮见解；默认推荐 `proj-experts`，可替换。
 
-**建议配合使用**：每轮讨论中，分析层遵循 `best-minds-grounded`；本 skill 负责讨论框架、文档目录与轮次沉淀。
+| | 分析层方法 skill | proj-shape（本 skill） |
+|---|------------------|--------------------------|
+| 核心问题 | 本轮要拿到什么洞见？（按方法定义） | 多轮间整体上要弄清什么？试什么？何时继续/停？ |
+| 时间尺度 | 单次（一轮内） | 多轮（跨次对话） |
+| 状态 | 无状态 | 有状态（`docs/discuss/`） |
+| 产出形态 | 文本回答 + 方法自定义结构 | 文件（轮次 md + DECISIONS.md） |
+| 边界 | 可单独使用 | **不写** MVP/排期/代码；**可写** 验证尝试、继续/中止、就绪判断 |
+
+**默认方法**：`proj-experts`（谁最懂、事实查证、专家视角，输出按三档标签）。其他可选方法见「讨论方法的最小约定」段。
+
+**建议配合使用**：每轮讨论中，分析层调用所选方法 skill；本 skill 负责讨论框架、文档目录与轮次沉淀。
 
 ## 项目目录结构（本 skill 定义）
 
@@ -92,7 +109,7 @@ docs/
 | 讨论轮次 | `` `03-范围收敛.md` §本轮决定 `` 或 `` 轮次 03 §讨论 `` |
 | 用户明示 | `` 用户 @轮次02 原话：「…」 `` 或 `` 用户于本轮确认 `` |
 | 查证事实 | `` [文档标题](URL) `` 或 `` repo/issue#123 `` |
-| 专家外推 | `` best-minds-grounded 外推；依据 [URL] 原则 … `` |
+| 方法推理 | `` 推理 · [方法/角色]；依据 [URL] 的 [原则/方法步骤] … ``（如 `推理 · 模拟推理 · Karpathy；依据 [URL] 的 [原则]`） |
 | 废止/修订 | 变更日志中写明 `` 废止 ORD-02 来源；见 `05-…md` `` |
 
 可组合多条来源，用分号分隔。禁止只写「讨论得出」而无轮次文件或用户/URL 指向。
@@ -139,11 +156,25 @@ docs/
 3. **前沿/无现成方案部分已降级**：至少一条路径——「若 EXP-xx 失败则 ORD/方向 B」；不得只有「再想想」。
 4. **原则性不变量**不在摇摆中（若本轮修改了 INV，状态应保持 `deciding`）。
 
-**软信号**（满足越多越好）：范围边界清楚；风险有来源；事实/外推/未查证已分开。
+**软信号**（满足越多越好）：范围边界清楚；风险有来源；事实/推理/待验证已分开。
 
 **仍不够**：反复争论同一 INV；开放问题全是「能不能做」而非「试哪条」；大量未查证却计划重投入。
 
 就绪结论写入 `DECISIONS.md`「讨论就绪检查」小节（模板见 [assets/decisions-template.md](assets/decisions-template.md)）。
+
+### 对 proj-plan 的承诺字段（衔接下游）
+
+proj-shape → proj-plan 的唯一衔接点是 `DECISIONS.md`。当讨论状态变为 `ready-for-implementation` 时，DECISIONS 必须为 proj-plan 准备好以下字段（否则 proj-plan 的 Round B GATE-1 / Coach hybrid 无法定模式）：
+
+| 字段 | 必备程度 | proj-plan 用途 |
+|------|---------|---------------|
+| `INV` / `ORD` 区分 | INV 至少 1 条 | tailoring T/F 模式判断；charter 不可变约束 |
+| 成功标准 | 写入 INV 或 ORD（做成什么样、非目标是什么） | charter 验收基线；phase-roadmap 里程碑判据 |
+| 范围边界 | 写入 ORD（含非目标） | WBS 范围；phase-roadmap 划分 |
+| `EXP-xx` 降级路径 B | 每条 EXP 必填「中止 → 降级方向」 | analyze gate 风险评估；circuit breaker 触发 |
+| 决定来源 | 全字段必填 | proj-plan change-log 可追溯 |
+
+**自检**：进入 `ready-for-implementation` 前对照上表；缺项即不得提交。proj-plan 读到缺项时应**回退本 skill 补齐**而非自行补全。
 
 ### 轮次文档 ↔ DECISIONS 互相同步（强制）
 
@@ -191,7 +222,7 @@ docs/
 1. **默认可行** — 讨论中先探索「在什么条件下成立」，再谈「什么条件下可能不成立」。
 2. **障碍必须带路** — 指出风险时，同步给出可讨论的缩小范围、替代路径或待验证问题（**不写** MVP/排期）。
 3. **不谄媚** — 避免空泛表扬；用可检验的表述。
-4. **不泼冷水** — 避免「这不行」式开场；用「若坚持 A，需面对 B；可改为 C」。
+4. **不泼冷水** — 避免「这不行」式开场；用「若坚持 A，需面对 B；可改为 C」。本条是讨论框架兜底；**分析层所选方法 skill 自身的态度规则优先**（如 proj-experts principle #10 建设性优于否定）。
 5. **分析有据** — 见下文「事实基础」；事实写入当轮文档的「已查证事实」节。
 6. **职责边界** — 不写 MVP 排期与代码；**要写** 可验证尝试及继续/中止标准，供落地执行。
 7. **未知前置** — 无现成解法时，禁止假装已有答案；必须落到 `EXP-xx` + 继续/中止，而非无限讨论。
@@ -200,11 +231,11 @@ docs/
 
 当查证后仍无工业界/playbook 方案，或属研究前沿时，本轮讨论**必须**包含：
 
-1. **问题分解** — 哪些是已知事实、哪些是外推、哪些是真正未知。
-2. **至少 1 条 `EXP-xx`**（可多条）— 最小可验证尝试；时间/成本量级可粗估（数量级即可，不做排期）。
+1. **问题分解** — 哪些是已查证事实、哪些是推理（来自所选方法）、哪些是真正未知。
+2. **至少 1 条 `EXP-xx`**（可多条）— 最小可验证尝试；时间/成本量级可粗估（数量级即可，不做排期）。**上游方法若产出 testable 假设**（如 proj-experts 4b 三件套的"待验证假设 + 中止信号"、pre-mortem 的失败假设等），升级为完整 `EXP-xx`（补 `尝试方案`、`成功信号`、`执行状态`、`降级路径 B`）。
 3. **继续标准** — 例如：「复现 baseline 达论文 x%」「用户访谈 n≥5 且 ≥3 人愿付费」。
 4. **中止标准** — 例如：「2 周内无法复现」「核心指标低于阈值 T」「用户明示放弃该方向」；并写明 **降级路径 B**（缩小范围 / 换方法 / 暂停项目）。
-5. **与 best-minds-grounded 对齐** — 外推仅作尝试设计依据，须标注；不得将外推写入 `INV` 除非用户确认为不变量。
+5. **推理类输出仅作尝试设计依据** — 不论来自哪种方法（proj-experts 的【模拟推理】、其他方法的推导），都须标注来源；不得将推理写入 `INV` 除非用户确认为不变量。
 
 讨论结束语应明确：**落地阶段去执行哪些 EXP，用什么判定继续/停**——不在本 skill 内执行。
 
@@ -212,7 +243,7 @@ docs/
 
 - **跳过事实直接讨论** — 未查证或未标「未验证」就下技术/市场结论。
 - **只列风险不给讨论方向** — 审辩会式泼冷水。
-- **把外推当定论** — 未区分事实 / 外推 / 待验证。
+- **把推理类输出当定论** — 未区分**已查证事实 / 推理 / 待验证假设**（不论推理来自哪种方法）。
 - **覆盖或篡改历史轮次文件** — 破坏 SDD 式留痕。
 - **在本 skill 中写落地计划** — MVP、里程碑、24–72h 任务列表等属越权。
 - **决定只写在轮次里不更新 DECISIONS.md** — 导致后续 skill/用户必须通读全部历史。
@@ -222,7 +253,7 @@ docs/
 - **前沿问题空泛讨论** — 无 EXP、无继续/中止，只有「需要更多研究」。
 - **过早 ready-for-implementation** — 无用户确认、硬条件未满足。
 - **在 docs/discuss 里写实现排期** — 越权；只写验证内容与判定标准。
-- **把 best-minds-grounded 压成无来源总结** — 外推无专家/原则/URL 挂靠，用户无法评估建议权重；等同 WebSearch + agent 归纳。
+- **把方法 skill 的推理压成无来源总结** — 不论是 proj-experts 的【模拟推理】还是其他方法的推导，写入文档时缺少**来源 + 原则/方法步骤 + URL** 挂靠，等同 WebSearch + agent 归纳。
 
 ## 事实基础（每轮必做）
 
@@ -232,50 +263,69 @@ docs/
 
 | 层 | 执行 | 产出去向 |
 |----|------|----------|
-| **分析层** | 完整执行 `best-minds-grounded` 工作流（轻量框定 → 定向查证 → 专家模拟/外推） | 内存/对话中完成，**不要求**原样粘贴其 Markdown 格式 |
+| **分析层** | 完整执行本轮所选**讨论方法 skill** 的工作流（默认 proj-experts：轻量框定 → 定向查证 → 专家模拟 / 模拟推理） | 内存/对话中完成，**不要求**原样粘贴其方法专属 Markdown 格式 |
 | **写入层** | 按 [assets/round-template.md](assets/round-template.md) **重组**进轮次文档 | `docs/discuss/NN-主题.md` 的「事实与假设」等节 |
 
-**写入层信息下限**（任何格式下均不得省略）：
+**写入层信息下限**（任何方法、任何格式下均不得省略）：
 
-1. **轻量框定** — 3–5 个定向查证问题（表格或列表均可）。
+1. **轻量框定** — 3–5 个定向查证问题（若所选方法要求查证；表格或列表均可）。
 2. **已查证事实** — 每条附 URL 或可追溯出处。
-3. **外推** — 显式标注；每条须含 **专家/角色 + 依据原则 + URL** 三元组（见「写入层格式分级」）。
-4. **三分离** — 已查证 / 外推 / 待验证 不得混写。
+3. **推理类输出** — 显式标注（不论来自哪种方法：best-minds 的【模拟推理】、pre-mortem 的失败假设推导、socratic 追问得出的中间结论等）；每条须含 **方法/角色 + 依据 + URL** 三元组。
+4. **三分离** — 已查证事实 / 推理 / 待验证假设 不得混写（方法无关；具体方法的内部标签如 best-minds 的三档作为方法内部细节）。
 
-**禁止**：将专家视角压成无来源的 agent 总结（如「外推 A / 外推 B」且未挂专家身份）。
+**禁止**：将方法 skill 的输出压成无来源的 agent 总结（如「推理 A / 推理 B」且未挂方法/角色身份）。
 
-### 优先：配合 best-minds-grounded
+### 讨论方法调用约定
 
-若存在 `best-minds-grounded`（`skills/best-minds-grounded/` 或 `~/.cursor/skills/`、`~/.claude/skills/`）：
+本 skill 通过分析层调用一个**讨论方法 skill**；默认 `proj-experts`（`skills/proj-experts/` 或 `~/.cursor/skills/`、`~/.claude/skills/`）。
 
-1. **分析层**：读取并遵循其工作流（轻量框定 → 定向查证 → 专家讨论/建设性外推）。
-2. **写入层**：将产出**重组**进当轮文档（非原样粘贴）；须满足上文「信息下限」与「写入层格式分级」。
+| 项 | 规则 |
+|----|------|
+| 默认方法 | `proj-experts`（适用绝大多数架构/方向/选型讨论） |
+| 切换方法 | 用户**显式指定**本轮用其他方法 skill（如 `pre-mortem`、`socratic-grounded`）；不指定则用默认 |
+| 方法记录 | 写入 `round-template.md` frontmatter 的 `discussion_method` 字段 |
+| 方法约束 | 见「讨论方法的最小约定」段 |
+| 多方法 | 同一轮原则上**单方法**；若混用须在轮次文档分节标明 |
 
-### 写入层格式分级
-
-按本轮讨论类型选用写入格式；**分析层始终完整执行**，仅写入详略不同。
-
-| 级别 | 适用场景 | 轮次文档要求 |
-|------|----------|--------------|
-| **完整** | 架构/方向争议；多专家碰撞；尚无 `ORD`/`INV` 共识；外推将写入决定 | 「专家视角讨论」节**必填**：沿用 `best-minds-grounded` 的 `视角 A/B…` + `会说的（有出处）` / `外推（非 TA 原话）` 结构（见 [round-template](assets/round-template.md)） |
-| **轻量** | 决定收敛；执行细节；前轮事实已确立；本轮主要为同步 `DECISIONS` | 可省略独立「专家视角讨论」节；**外推仍须**在「外推」节逐条标注专家/原则/URL，不得用无来源编号总结 |
-| **最小** | 纯用户确认轮；无新查证、无新外推 | 仅更新决定与同步状态；「事实与假设」可写「本轮无新查证」 |
-
-**争议轮判定**（满足任一即按 **完整** 级写入）：本轮存在未闭合的方案/架构权衡；模拟 ≥2 个专家视角；本轮外推可能进入 `INV`/`ORD`/`EXP` 来源列。
-
-**外推条目格式（轻量/完整均须）**：
-
-```markdown
-- **外推 · [专家/角色]**（非 TA 原话）：…；依据 [来源](URL) 的 [原则] …
-```
-
-完整级可在「专家视角讨论」节展开，再在「外推」节做索引或合并——两处条文须一致，且均含三元组。
-
-### Fallback：无 best-minds-grounded 时
+**Fallback：方法 skill 不可用 / 无联网时**
 
 1. 列出 3–5 个待查问题 → **定向 WebSearch**（官方 docs / repo / issue / RFC）。
 2. 查不到则标「未查证 / 低置信」；禁止专家口吻臆测。
 3. 无联网时：标低置信，列出待验证假设，讨论粒度相应收紧。
+
+### 写入层格式分级
+
+按本轮讨论类型选用写入格式；**分析层始终完整执行所选方法**，仅写入详略不同。
+
+| 级别 | 适用场景 | 轮次文档要求 |
+|------|----------|--------------|
+| **完整** | 架构/方向争议；多角度碰撞；尚无 `ORD`/`INV` 共识；推理将写入决定 | 「方法专属输出」节**必填**：沿用所选方法 skill 的结构（proj-experts 时即 `视角 A/B…` + 三档标签【原话】/【已公开立场】/【模拟推理】；其他方法按其约定）；详见所选方法 skill 文档 |
+| **轻量** | 决定收敛；执行细节；前轮事实已确立；本轮主要为同步 `DECISIONS` | 可省略独立「方法专属输出」节；**推理类条目仍须**在「推理」节逐条标注方法/角色/依据/URL |
+| **最小** | 纯用户确认轮；无新查证、无新推理 | 仅更新决定与同步状态；「事实与假设」可写「本轮无新查证」 |
+
+**争议轮判定**（满足任一即按 **完整** 级写入）：本轮存在未闭合的方案/架构权衡；动用 ≥2 个角度（如 best-minds 的 ≥2 专家、socratic 的多线追问、six-hats 的多色帽等）；本轮推理可能进入 `INV`/`ORD`/`EXP` 来源列。
+
+**推理类条目格式（轻量/完整均须）**：
+
+```markdown
+- **推理 · [方法 / 角色]**：…；依据 [来源](URL) 的 [原则/方法步骤] …
+```
+
+> 示例（proj-experts）：`**推理 · 模拟推理 · Karpathy**：…；依据 [karpathy.github.io/...](URL) 的「LLM as simulator」原则 …`
+> 示例（pre-mortem）：`**推理 · pre-mortem · 失败假设 #2**：…；依据本轮 pre-mortem step 3 输出 …`
+
+完整级可在「方法专属输出」节展开，再在「推理」节做索引或合并——两处条文须一致，且均含三元组。
+
+## 讨论方法的最小约定
+
+任何方法 skill 作为本 skill 的分析层时，须满足以下**最小契约**（默认 `proj-experts`；未来可接入 `pre-mortem`、`socratic-grounded`、`five-whys` 等）：
+
+1. **输出可归类** — 方法的产出必须能落入本 skill 的"事实 / 推理 / 待验证假设"三分类之一；不得产生第四类无法归位的内容。
+2. **推理可追溯** — 推理类输出须挂得上 **方法/角色 + 依据 + URL** 三元组（best-minds 的"专家/原则/URL"是其中一种特化）。
+3. **态度对齐** — 方法 skill 自身的态度规则（如"建设性优于否定"）优先；本 skill 的 principle #4 不泼冷水兜底。
+4. **可与 EXP-xx 接续** — 若方法产出 testable 假设，须能升级为完整 `EXP-xx`（补尝试方案 / 成功信号 / 降级路径 B）。
+
+> 本节只立**最小契约**，不立完整接口。待第 2 个方法 skill 实际接入时，再根据经验补充详细接口规约（避免过早抽象）。
 
 ## 工作流
 
@@ -297,8 +347,10 @@ docs/
 
 ### 3. 事实基础 + 讨论
 
-- 执行「事实基础」。
-- 在默认可行、障碍带路、不谄媚不泼冷水的约束下展开讨论。
+- **确认本轮讨论方法**：默认 `proj-experts`；若用户显式指定其他方法 skill，按指定执行；记录到轮次文档 frontmatter 的 `discussion_method` 字段。
+- 调用所选方法 skill，执行其完整工作流。
+- 按「事实基础」将方法产出**重组**进当轮文档（守住信息下限 + 三分离）。
+- 在默认可行、障碍带路、不谄媚不泼冷水的约束下展开讨论（**所选方法自身的态度规则优先**）。
 - 识别是否触发「无现成方案 / 科研前沿」专轨；若是，产出 `EXP-xx` 草案（含继续/中止）。
 - 可含：方案对比、权衡、开放问题；对弱背景用户用少量具体二选一问题降低表达负担。
 
@@ -327,11 +379,11 @@ docs/
 
 见 `assets/round-template.md`。核心章节：
 
-- 元信息（轮次、主题、日期）
+- 元信息（轮次、主题、日期、**讨论方法**）
 - 用户输入（本轮原文或摘要）
-- 轻量框定（查证前问题清单）
-- 已查证事实 / 外推 / 待验证假设
-- 专家视角讨论（争议轮必填；收敛轮可省略，外推仍须带专家/原则/URL）
+- 轻量框定（查证前问题清单；若所选方法要求查证）
+- 已查证事实 / **推理** / 待验证假设
+- **方法专属输出**（争议轮必填；收敛轮可省略；按所选方法 skill 的结构组织——proj-experts 时为「视角 A/B…」+ 三档标签结构）
 - 讨论正文
 - 可验证尝试与继续/中止（前沿/无现成方案时必填）
 - 本轮决定（已确定 / 待确认 / 修订）
@@ -343,7 +395,7 @@ docs/
 
 ## 触发词
 
-想法讨论 · idea-discuss · 前沿 · 科研 · 无现成方案 · 可验证尝试 · 继续标准 · 中止标准 · 讨论够了没 · ready-for-implementation · EXP · discuss · DECISIONS
+想法讨论 · proj-shape · 多轮细化 · 模糊变明确 · 前沿 · 科研 · 无现成方案 · 可验证尝试 · 继续标准 · 中止标准 · 讨论够了没 · ready-for-implementation · EXP · discuss · DECISIONS · 切换讨论方法 · discussion_method · pre-mortem · socratic · 方法可替换
 
 ## 明确不触发本 skill 的场景
 

@@ -1,5 +1,7 @@
 # 04-idea-pmo-pmp-gap-review
 
+> **2026-05-27 命名变更注记（轮次 07 决定）**：skills 集体重命名：`best-minds-grounded` → `proj-experts`、`idea-discuss` → `proj-shape`、`idea-pmo` → `proj-plan`；新增 `proj-run`（执行调度，骨架版）。本文档作为历史快照沿用讨论时的旧名（含文件名 idea-pmo），**正文不动**；引用时按上表换算。完整说明见 `07-sub-agent-model-tier-编排.md` + `DECISIONS.md`。
+
 | 字段 | 值 |
 |------|-----|
 | 轮次 | 04 |

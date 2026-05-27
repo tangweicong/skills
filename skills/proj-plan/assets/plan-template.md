@@ -17,7 +17,7 @@
 | 2 | | subagent:explore | 1 | — | | ☐ |
 | 3 | | 人工 | 2 | 30 min | | ☐ |
 
-**执行者**：`AI` · `人工` · `subagent:{角色}` — 见 idea-pmo skill [agent-handoff.md](agent-handoff.md)
+**执行者**：`AI` · `人工` · `subagent:{角色}` — 见 proj-plan skill [agent-handoff.md](agent-handoff.md)
 
 ## Handoff（sub-agent 任务必填）
 

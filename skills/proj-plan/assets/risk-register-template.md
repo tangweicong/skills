@@ -18,7 +18,7 @@
 
 | ID | 触发条件 | 储备/降级路径 B | 责任人 | 复查阶段 |
 |----|----------|-----------------|--------|----------|
-| R-01 | | 回 idea-discuss / 缩 scope | | phase-NN review |
+| R-01 | | 回 proj-shape / 缩 scope | | phase-NN review |
 
 ## 与 phase review 联动
 

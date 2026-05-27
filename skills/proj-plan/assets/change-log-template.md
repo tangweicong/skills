@@ -1,7 +1,7 @@
 # 变更日志（整体变更控制）
 
 > **PMP**：实施整体变更控制的最小实现。  
-> **SDD**：规范变更须留痕；推翻 INV/ORD 须回 `idea-discuss`，此处记录 pmo 层变更。
+> **SDD**：规范变更须留痕；推翻 INV/ORD 须回 `proj-shape`，此处记录 plan 层变更。
 
 | 字段 | 值 |
 |------|-----|
@@ -22,7 +22,7 @@
 
 | 变更层级 | 处理 |
 |----------|------|
-| 新 INV/ORD/EXP | **idea-discuss**；本 log 仅引用 ID |
+| 新 INV/ORD/EXP | **proj-shape**；本 log 仅引用 ID |
 | charter/wbs/roadmap 修订 | 本 log + 更新对应 artifact + artifact-index 版本 |
 | phase plan 内任务调整 | 直接改 `phase-NN/plan.md`；**不必**记 CHG（阶段内） |
 

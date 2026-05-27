@@ -28,7 +28,7 @@
 
 | 基准 | 来源 | 变更途径 |
 |------|------|----------|
-| 范围基准 | charter + wbs | `change-log.md` → 重大变更回 idea-discuss |
+| 范围基准 | charter + wbs | `change-log.md` → 重大变更回 proj-shape |
 | 进度基准（粗） | phase-roadmap 里程碑 | 阶段 review 滚动修订 |
 | 细进度 | phase-NN/plan | 仅本阶段内修订 |
 
