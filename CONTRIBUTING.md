@@ -30,7 +30,7 @@
 ## 提交流程
 
 1. 在 `skills/` 下新增或修改 skill 目录
-2. 更新 `skills/README.md` 索引表
+2. 更新根 `README.md` 的 4 skill 索引表与对应 skill 详细节（如有 skill 增删或描述变化）
 3. 运行 `uv run scripts/validate_skills.py`
 4. 提交 PR（CI 会自动校验）
 

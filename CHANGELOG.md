@@ -6,6 +6,58 @@
 
 ---
 
+## [1.2.0] — 2026-05-28
+
+proj-shape 新增三段式入口（BRAINSTORM → 苏格拉底澄清轮 → 专家讨论轮），降低初次表达负担 + 用苏格拉底六问为专家轮框定方向；同时合并双 README（删除 `skills/README.md`，统一到根 README）。
+
+### Added
+
+- `skills/proj-shape/assets/brainstorm-template.md`（51 行 · 用户自留草稿模板）：5 个开放问句（想解决什么 / 为什么做 / 服务谁 / 成功长什么样 / 不打算做什么）+ 自由叙述区 + 给 AI 的话（可选跳过苏格拉底的留痕位）；明示"不写事实查证 / 专家视角 / INV/ORD/EXP"——越简短越好
+- `skills/proj-shape/SKILL.md` 新增 `## 三段式入口（首次使用本 skill）` 节：三段式总表（阶段 / 产出 / 主导 / 退出条件）+ 5 条规则 + **苏格拉底六问类别**表（澄清 / 追假设 / 找原因 / 看推论 / 换视角 / 元问 · AI 按需挑 3–5 个，非全套打）+ "不抽 skill 的理由"声明（六问足够薄 · inline 即可 · 未来有跨项目复用需求再抽 `socratic-grounded` 独立 skill）
+- `skills/proj-shape/SKILL.md` 新增 `### BRAINSTORM.md（初始想法草稿）` 子节（与 `DECISIONS.md` 子节平行结构 · 含路径 / 创建 / 完成门槛 / 冻结时机 / 决定关系 / 同步要求）
+- 根 `README.md` 的 proj-shape 节新增**三段式入口**总表（BRAINSTORM / 苏格拉底澄清轮 / 专家讨论轮）+ 跳过条件说明 + 典型用法更新（自动建 BRAINSTORM → 六问 → proj-experts 攻防）
+
+### Changed
+
+- `skills/proj-shape/SKILL.md`：
+  - frontmatter `description` 加入 `brainstorm 初始想法捕获, 苏格拉底澄清, 三段式入口` 关键词
+  - 顶部 HTML 注释新增「下一版改动（三段式入口）」段，记录 4 条本版改动
+  - `## 项目目录结构` 目录树加入 `BRAINSTORM.md` 与 `01-苏格拉底澄清.md`
+  - `### 讨论方法调用约定` 默认方法行：**Round 01 默认 `socratic-grounded`**（用户明示「想法够清楚」可跳过到 `proj-experts`，在 BRAINSTORM「给 AI 的话」或 round 01 frontmatter 留痕）；**Round 02+ 默认 `proj-experts`**
+  - 工作流 §0「准备目录、BRAINSTORM 与轮次」：BRAINSTORM 不存在时**自动创建空模板**（不等用户提问）；存在但本轮 = round 01 时判断走苏格拉底/跳过；本轮 ≥ round 02 且 BRAINSTORM 仍可改时**冻结**（追加冻结注记，正文只读）
+  - 工作流 §3「事实基础 + 讨论」：默认方法按轮次区分；新增**苏格拉底澄清轮特殊约定**——本轮不产 `INV`/`ORD`（除非用户显式确认升级），命题以「候选 ORD」「候选 EXP 假设」形式落到「本轮决定 → 待确认」节留给专家轮攻防；默认单轮（如必要多轮则文件名 `01-苏格拉底-焦点A.md`、`02-苏格拉底-焦点B.md`，专家轮从 `03-` 起）；苏格拉底过程中允许用户回改 BRAINSTORM
+  - 触发词加入 `brainstorm · BRAINSTORM · 初始想法 · 想法捕获 · 苏格拉底澄清 · socratic-grounded · 三段式入口 · 六问`
+- 根 `README.md`：
+  - proj-shape 详细节加三段式入口（如上 Added 末项）；完整链路 step 1 提及 BRAINSTORM 自动建模板
+  - 末尾「开发与贡献」节移除 `skills/README.md` 链接；改为「本文件即 4 skill 索引（不再单独维护 skills/README.md）」
+- `CONTRIBUTING.md`：提交流程 step 2 从「更新 `skills/README.md` 索引表」改为「更新根 `README.md` 的 4 skill 索引表与对应 skill 详细节」
+- 4 个 SKILL.md（proj-shape / proj-experts / proj-plan / proj-run）顶部 HTML 注释：「请同步更新 skills/README.md」→「请同步更新根 README.md 的 4 skill 索引表与本 skill 详细节」
+
+### Removed
+
+- **`skills/README.md`**（17 行 · 删除）—— 与根 `README.md` 的 4 skill 索引表重叠；维护两份增加同步成本却不带来新信息。该文件原有内容：
+  - 4 skill 精简表 → **保留**在根 README 的索引表（行 7–12）+ 各 skill 详细节
+  - `2026-05-27 集体重命名` notice → 已记录在 CHANGELOG `[1.0.0]` 段，**不再保留**冗余 notice
+  - `<!-- 新增 skill 后…运行 validate_skills.py -->` 编辑约定 → **已挪到** `CONTRIBUTING.md` 提交流程节
+
+### Design notes（不开 ORD · 仅记录设计动机）
+
+- **本次改动未走 `docs/discuss/` 轮次留痕**：属 skill 内迭代（用户在对话中直接讨论确认），不开新 ORD/EXP；若未来三段式入口实际使用中暴露问题，再补开 09 轮讨论
+- **苏格拉底不抽独立 skill**：六问类别足够薄，inline 在 `proj-shape/SKILL.md` 即可；与 `proj-experts`（需独立技术——专家模拟、三档标签）的判定不同
+- **苏格拉底默认推荐但可跳过**：避免硬性强制变成形式主义；信号通道 = BRAINSTORM「给 AI 的话」节或对话明示
+- **BRAINSTORM 冻结时机 = 进入 round 02 后**（而非写完即冻）：苏格拉底的价值之一就是让用户发现"原来我真正想做的不是这个"，需要回改窗口
+- **苏格拉底轮只产候选命题不产决定**：与专家轮职责分开——苏格拉底负责"问出可被打靶的命题"，专家轮负责"攻防 + 沉淀 INV/ORD"
+- **不动 `assets/round-template.md` 与 `assets/decisions-template.md`**：round-template 已有 `discussion_method` 字段足够；BRAINSTORM 不进 DECISIONS 同步循环
+- **双 README 合并到根 README**：根 README = 项目主页（landing + 详细介绍）；原 `skills/README.md` 仅是 4 skill 速查索引，与根 README 重叠；删除后所有 skill 编辑约定指向根 README + CONTRIBUTING.md，single source of truth
+
+### Compatibility
+
+- 既有项目（`docs/discuss/` 已存在 round 01+）不受影响：BRAINSTORM 仅在不存在时自动创建；既有 round 01 不会被改名为「苏格拉底澄清」
+- 新项目首次使用 proj-shape 时，第 0 步会自动建空 BRAINSTORM 模板；用户可立即跳过（在「给 AI 的话」明示）直接走 proj-experts，零阻塞
+- 历史 PM artifact（`docs/pmo/proj-run-draft/*`）与历史讨论轮次（`docs/discuss/07-*.md`、`08-*.md`）中引用 `skills/README.md` 的位置**不动**（SDD 留痕约定 · 仅作历史快照）；CHANGELOG `[1.0.0]`/`[1.1.0]` 中提及 `skills/README.md` 的条目也不动（描述当时确实做了什么）
+
+---
+
 ## [1.1.0] — 2026-05-27
 
 08 轮：proj-run 完整版起草 + EXP-04 model-tier 试跑。

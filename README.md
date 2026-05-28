@@ -90,12 +90,23 @@ ln -s "$(pwd)/skills/proj-run"     ~/.cursor/skills/proj-run
 
 **不负责**：MVP 细则、里程碑排期、写代码（这些交给 proj-plan 或执行阶段）。
 
+**三段式入口**（首次使用本 skill）：
+
+| 阶段 | 产出 | 主导 | 退出 → 下一阶段 |
+|------|------|------|----------------|
+| **0. BRAINSTORM** | `docs/discuss/BRAINSTORM.md` | 用户低负担自留草稿（5 个开放问句 + 自由叙述区） | 答 3/5 问句 + 自由叙述非空 |
+| **1. 苏格拉底澄清轮** | `01-苏格拉底澄清.md`（`discussion_method: socratic-grounded`）| AI 提问、用户答；六问类别 inline 在 SKILL.md | 提炼出 ≥1 条可被外部专家评判的命题 |
+| **2+. 专家讨论轮** | `02-….md`、`03-….md`（默认 `discussion_method: proj-experts`）| AI 调用方法 skill 攻防 | 满足「讨论就绪」硬条件 |
+
+苏格拉底**可跳过**——用户在 BRAINSTORM「给 AI 的话」节明示「想法够清楚」，则 round 01 直接走 proj-experts；BRAINSTORM 进入 round 02 后冻结。
+
 **产出目录**（在项目根目录）：
 
 ```text
 docs/discuss/
+├── BRAINSTORM.md         # 用户自留：初始想法草稿（首次使用时自动建空模板）
 ├── DECISIONS.md          # 已确定决定 + EXP 表 + 讨论状态（优先读此文件）
-├── 01-初始想法简述.md
+├── 01-苏格拉底澄清.md     # 默认 round 01：六问提炼候选命题
 ├── 02-技术选型争议.md
 └── ...
 ```
@@ -104,10 +115,10 @@ docs/discuss/
 
 | 层 | skill | 产出 |
 |----|-------|------|
-| 分析层（方法可替换）| proj-experts（默认）/ pre-mortem / socratic-grounded / ... | 查证、专家视角、三档标签（完整执行）|
-| 讨论层（框架）| proj-shape | 轮次文档 + DECISIONS 汇总 + 就绪判断 |
+| 分析层（方法可替换）| proj-experts（默认 round 02+）/ socratic-grounded（默认 round 01，inline 六问）/ pre-mortem / ... | 查证、专家视角、三档标签（完整执行）|
+| 讨论层（框架）| proj-shape | 轮次文档 + DECISIONS 汇总 + 就绪判断 + BRAINSTORM 入口 |
 
-每轮讨论默认配合 proj-experts 做分析，由 proj-shape 重组写入文档；用户可显式切换其他讨论方法 skill。
+每轮讨论调用所选方法 skill 做分析，由 proj-shape 重组写入文档；用户可显式切换。
 
 **对 proj-plan 的承诺字段**：当讨论状态变为 `ready-for-implementation` 时，DECISIONS 必须为 proj-plan 准备好 INV/ORD 区分、成功标准、范围边界、EXP 降级路径、来源追溯。
 
@@ -115,7 +126,9 @@ docs/discuss/
 
 ```text
 用户：我想做一个 XXX，但不确定技术路线，帮我讨论一下
-→ Agent 启用 proj-shape，创建 docs/discuss/01-…md，同步更新 DECISIONS.md
+→ Agent 启用 proj-shape，自动建 docs/discuss/BRAINSTORM.md 让用户填
+→ 用户填完最低门槛 → round 01 苏格拉底六问追问 → 提炼候选命题
+→ round 02+ 调 proj-experts 攻防；同步更新 DECISIONS.md
 
 用户：讨论够了吗？能不能开始做？
 → 对照「讨论就绪」硬条件，更新 DECISIONS 状态为 ready-for-implementation（须用户确认）
@@ -123,7 +136,7 @@ docs/discuss/
 
 **讨论状态**：`exploring` → `deciding` → `ready-for-implementation` / `blocked`
 
-**触发词示例**：想法讨论 · proj-shape · 前沿方案 · 无现成解法 · 可验证尝试 · 讨论够了没 · EXP · DECISIONS · 切换讨论方法
+**触发词示例**：想法讨论 · proj-shape · 前沿方案 · 无现成解法 · 可验证尝试 · 讨论够了没 · EXP · DECISIONS · 切换讨论方法 · brainstorm · 苏格拉底澄清 · 三段式入口
 
 **详细说明**：[skills/proj-shape/SKILL.md](./skills/proj-shape/SKILL.md)
 
@@ -215,7 +228,7 @@ docs/pmo/phase-NN/
 
 ### 完整链路（新项目）
 
-1. **讨论**：「帮我讨论一下 XXX 想法」→ `proj-shape`（分析层自动配合 `proj-experts`）
+1. **讨论**：「帮我讨论一下 XXX 想法」→ `proj-shape` 自动建 `BRAINSTORM.md`（用户低负担填初稿）→ round 01 苏格拉底六问追问澄清 → round 02+ 调 `proj-experts` 攻防
 2. **就绪**：多轮后确认 `DECISIONS.md` 为 `ready-for-implementation`
 3. **规划**：「按 DECISIONS 做项目规划」→ `proj-plan`（Round A → Round B → 按需进阶段，含 dispatch manifest）
 4. **执行**：「按 plan + manifest dispatch sub-agent」→ `proj-run`（按 3 Mode 选择 → validation → escalate → acceptance）
@@ -253,7 +266,7 @@ uv run scripts/validate_skills.py
 cp -r template skills/my-new-skill
 ```
 
-详见 [CONTRIBUTING.md](./CONTRIBUTING.md) 与 [skills/README.md](./skills/README.md)（skill 索引表）。
+详见 [CONTRIBUTING.md](./CONTRIBUTING.md)；本文件即 4 skill 索引（不再单独维护 `skills/README.md`）。
 
 变更历史见 [CHANGELOG.md](./CHANGELOG.md)。
 

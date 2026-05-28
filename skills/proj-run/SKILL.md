@@ -23,7 +23,7 @@ output: docs/pmo/phase-NN/acceptance.md（含 validation 结果 + token cost + e
         + docs/pmo/artifact-index.md 追加（sub-agent 产出登记）
 pos:    PMP Executing Process Group；与 proj-plan 串联在 PMP Planning 之后
 
-修改本文件后，请同步更新 skills/README.md。
+修改本文件后，请同步更新根 README.md 的 4 skill 索引表与 proj-run 详细节（skills/README.md 已于 1.2.0 合并至根 README）。
 -->
 
 # 执行调度（proj-run）

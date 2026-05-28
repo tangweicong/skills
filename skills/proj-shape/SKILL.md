@@ -9,7 +9,8 @@ description: >-
   proj-experts; pluggable—user may pick other discussion-method skills
   (e.g. pre-mortem, socratic, five-whys) per round. Provides commitment-fields for
   downstream proj-plan. Use for 想法讨论, 多轮细化, 模糊变明确, 前沿方案, 无现成解法,
-  可验证尝试, 讨论是否足够, docs/discuss/ artifacts, 切换讨论方法.
+  可验证尝试, 讨论是否足够, docs/discuss/ artifacts, 切换讨论方法,
+  brainstorm 初始想法捕获, 苏格拉底澄清, 三段式入口.
 compatibility: >-
   Default analysis method: proj-experts (pluggable, user-selectable). Writes
   files under project-root docs/discuss/. Downstream: proj-plan reads DECISIONS.md.
@@ -34,7 +35,13 @@ pos: 主 skill（以实现为导向的讨论 + 文档化）；分析层默认调
 4. 新增"对 proj-plan 的承诺字段"段——明确下游 proj-plan 需要读到什么
 5. round-template.md frontmatter 加 discussion_method 字段（默认 proj-experts）
 
-修改本文件后，请同步更新 skills/README.md 的「现有 skills」表格。
+下一版改动（三段式入口）：
+1. 新增 BRAINSTORM.md（用户自留草稿）——降低初次表达负担；模板见 assets/brainstorm-template.md
+2. 新增"三段式入口"节：BRAINSTORM → 苏格拉底澄清轮（默认 round 01） → 专家讨论轮（默认 round 02+）；含苏格拉底六问类别 inline，暂不抽出独立 skill
+3. Round 01 默认方法改为 socratic-grounded（用户明示可跳过到 proj-experts）；Round 02+ 默认仍 proj-experts
+4. 工作流 §0 增加 BRAINSTORM.md 自动初始化；§3 增加苏格拉底轮特殊约定（不产决定、只提炼候选 ORD / 候选 EXP 假设）
+
+修改本文件后，请同步更新根 README.md 的 4 skill 索引表与 proj-shape 详细节（skills/README.md 已于 1.2.0 合并至根 README）。
 -->
 
 # 想法收敛（proj-shape）
@@ -59,6 +66,41 @@ proj-shape 是**讨论框架**，分析层调用一个**讨论方法 skill** 来
 
 **建议配合使用**：每轮讨论中，分析层调用所选方法 skill；本 skill 负责讨论框架、文档目录与轮次沉淀。
 
+## 三段式入口（首次使用本 skill）
+
+把一个**新项目**的想法收敛过程拆成三段，每段产出独立留痕、退出条件明确：
+
+| 阶段 | 产出 | 主导 | 退出 → 下一阶段 |
+|------|------|------|-----------------|
+| **0. BRAINSTORM** | `docs/discuss/BRAINSTORM.md`（[模板](assets/brainstorm-template.md)） | 用户写 | 5 个开放问句**至少答 3 个** + 自由叙述区非空 |
+| **1. 苏格拉底澄清轮** | `docs/discuss/01-苏格拉底澄清.md`（`discussion_method: socratic-grounded`） | AI 提问、用户答 | 至少**提炼出 1 条可被外部专家评判的具体命题**（候选 `ORD` / 候选 `EXP` 假设） |
+| **2+. 专家讨论轮** | `docs/discuss/02-….md`、`03-….md` …（默认 `discussion_method: proj-experts`） | AI 调用所选方法 skill | 按「[讨论就绪](#讨论就绪可否进入落地)」硬条件 |
+
+**规则**：
+
+- BRAINSTORM 是**用户自留草稿**，不是讨论文档：不写事实查证、不写专家视角、不产出 `INV`/`ORD`/`EXP`；越简短越好。
+- BRAINSTORM **进入 round 02（第一轮专家讨论）后冻结**；苏格拉底澄清轮中允许回改（苏格拉底的价值之一就是让用户发现"原来我真正想做的不是这个"）。
+- 苏格拉底澄清轮**默认推荐但可跳过**——若用户在 BRAINSTORM「给 AI 的话」节或对话中明示「想法够清楚，直接进专家轮」，则 round 01 直接走 `proj-experts`；该选择需在 round 01 frontmatter `discussion_method` 字段留痕。
+- 苏格拉底澄清轮**默认单轮**——继续追问意味着已可进入专家攻防；如必要多轮，文件名 `01-苏格拉底-焦点A.md`、`02-苏格拉底-焦点B.md`，专家轮从 `03-` 起。
+- 苏格拉底澄清轮**只提炼命题，不下决定**：本轮不应产出 `INV`/`ORD`（除非用户显式确认升级）；命题以「候选 ORD」「候选 EXP 假设」形式落到「本轮决定 → 待确认」节，留给专家轮攻防。
+
+### 苏格拉底六问类别（AI 按需挑用，非全套打）
+
+按 BRAINSTORM 内容挑 **3–5 个最值得追问的点**——不要一口气走完六类，会变成审讯。每个追问产出的命题写入 `01-苏格拉底澄清.md` 的「本轮决定 → 待确认」节作为候选 ORD / 候选 EXP 假设。
+
+| # | 类别 | 问法示例 |
+|---|------|---------|
+| 1 | **澄清** | 「你说 X 是什么意思？能举一个具体例子吗？」 |
+| 2 | **追假设** | 「你这里假设了 Y，这个假设的依据是什么？反例是什么？」 |
+| 3 | **找原因** | 「为什么这个比那个重要？凭什么这么排序？」 |
+| 4 | **看推论** | 「如果 Z 成立，会推出什么后果？你能接受最坏推论吗？」 |
+| 5 | **换视角** | 「反对方会怎么说？跳出来看，这个问题问对了吗？」 |
+| 6 | **元问** | 「这个问题本身是不是问对了？真正的问题是什么？」 |
+
+**态度**：六问的目的是帮用户**发现**自己的想法，不是辩论或挑刺；当用户卡壳时换一类问法、给具体二选一选项降低表达负担，而不是反复追同一问。
+
+**不抽 skill 的理由**：六问类别足够薄，inline 在本 skill 即可；未来若有跨项目复用需求再抽出 `socratic-grounded` 独立 skill。
+
 ## 项目目录结构（本 skill 定义）
 
 在**当前工作区根目录**（用户正在讨论的那个项目根，不是 skill 包目录）维护：
@@ -66,8 +108,9 @@ proj-shape 是**讨论框架**，分析层调用一个**讨论方法 skill** 来
 ```text
 docs/
 └── discuss/
+    ├── BRAINSTORM.md         # 用户自留：初始想法草稿（首次使用本 skill 时自动创建空模板）
     ├── DECISIONS.md          # 已确定决定汇总（其它 skill / 用户优先读此文件）
-    ├── 01-初始想法简述.md
+    ├── 01-苏格拉底澄清.md     # 默认 round 01：苏格拉底六问提炼候选命题
     ├── 02-技术选型争议.md
     └── 03-范围收敛.md
 ```
@@ -144,6 +187,21 @@ docs/
 尝试方案写在讨论里，**汇总表在 DECISIONS**；与轮次文档**互相同步**（同决定规则）。无前沿未知时，本表可空。
 
 **给其它 skill 的约定**：落地/实现前读 `DECISIONS.md`（决定 + `EXP-xx` + 讨论状态）；按「继续/中止」与成功信号执行验证，勿 reinterpret 未查证内容为定论。
+
+### BRAINSTORM.md（初始想法草稿）
+
+**目的**：在 AI 介入讨论之前，让用户**以最低负担**把想法说个大概，为后续苏格拉底澄清轮提供起点；详见上文「[三段式入口](#三段式入口首次使用本-skill)」。
+
+| 项 | 规则 |
+|----|------|
+| 路径 | `docs/discuss/BRAINSTORM.md`（全大写，固定名，不参与轮次编号） |
+| 创建 | 工作流 §0 中**自动创建**（按 [assets/brainstorm-template.md](assets/brainstorm-template.md)）；由用户填写 |
+| 完成门槛 | 5 个开放问句**至少答 3 个** + 自由叙述区非空（最低门槛，不强求完整） |
+| 冻结时机 | 进入 **round 02（第一轮专家讨论）** 后冻结；苏格拉底澄清轮中可回改 |
+| 决定关系 | **不写入决定**——不产出 `INV`/`ORD`/`EXP`，仅是讨论起点；决定经苏格拉底轮和专家轮逐步沉淀 |
+| 同步要求 | 不在 DECISIONS / 轮次同步检查清单内——它是讨论前置物，不是讨论留痕 |
+
+**禁止**：把 BRAINSTORM 当成正式讨论文档去补充事实查证 / 专家视角 / 方法专属输出——这些属于轮次文件的职责；BRAINSTORM 越简短越好，让步骤往下走比写得完美更重要。
 
 ### 讨论就绪（可否进入落地）
 
@@ -281,8 +339,9 @@ proj-shape → proj-plan 的唯一衔接点是 `DECISIONS.md`。当讨论状态�
 
 | 项 | 规则 |
 |----|------|
-| 默认方法 | `proj-experts`（适用绝大多数架构/方向/选型讨论） |
-| 切换方法 | 用户**显式指定**本轮用其他方法 skill（如 `pre-mortem`、`socratic-grounded`）；不指定则用默认 |
+| 默认方法 | **Round 01** 默认 `socratic-grounded`（苏格拉底六问 inline 在本 skill，见「[三段式入口](#三段式入口首次使用本-skill)」）；**Round 02+** 默认 `proj-experts`（适用绝大多数架构/方向/选型讨论） |
+| 跳过苏格拉底 | 用户明示「想法够清楚，直接进专家轮」时，round 01 直接走 `proj-experts`；该选择在 BRAINSTORM「给 AI 的话」或 round 01 frontmatter 留痕 |
+| 切换方法 | 用户**显式指定**本轮用其他方法 skill（如 `pre-mortem`、`five-whys`）；不指定则用默认 |
 | 方法记录 | 写入 `round-template.md` frontmatter 的 `discussion_method` 字段 |
 | 方法约束 | 见「讨论方法的最小约定」段 |
 | 多方法 | 同一轮原则上**单方法**；若混用须在轮次文档分节标明 |
@@ -329,10 +388,15 @@ proj-shape → proj-plan 的唯一衔接点是 `DECISIONS.md`。当讨论状态�
 
 ## 工作流
 
-### 0. 准备目录与轮次
+### 0. 准备目录、BRAINSTORM 与轮次
 
 - 确保 `{项目根}/docs/discuss/` 存在。
-- 按「轮次编号算法」确定本轮 `NN`；与用户确认或提炼本轮「讨论主题」→ 确定文件名 `docs/discuss/NN-主题.md`。
+- **若 `BRAINSTORM.md` 不存在**：按 [assets/brainstorm-template.md](assets/brainstorm-template.md) 创建空模板（不需要等用户提问）；告知用户已创建并提示其填写；待最低门槛（5 问句答 3 个 + 自由叙述非空）满足后再进入 round 01。
+- **若 `BRAINSTORM.md` 存在但本轮是 round 01**：
+  - 复述 BRAINSTORM 要点，与用户确认是否已满足最低门槛；
+  - 检查 BRAINSTORM「给 AI 的话」节是否明示跳过苏格拉底；未明示 → 默认走 `socratic-grounded`；明示跳过 → 走 `proj-experts`。
+- **若本轮 ≥ round 02 且 BRAINSTORM 仍可改**：本轮落盘前**冻结** BRAINSTORM（追加冻结注记，正文只读）。
+- 按「轮次编号算法」确定本轮 `NN`；与用户确认或提炼本轮「讨论主题」→ 确定文件名 `docs/discuss/NN-主题.md`（round 01 苏格拉底轮建议主题为 `苏格拉底澄清` 或更具体的焦点）。
 
 ### 1. 读取上下文
 
@@ -347,12 +411,19 @@ proj-shape → proj-plan 的唯一衔接点是 `DECISIONS.md`。当讨论状态�
 
 ### 3. 事实基础 + 讨论
 
-- **确认本轮讨论方法**：默认 `proj-experts`；若用户显式指定其他方法 skill，按指定执行；记录到轮次文档 frontmatter 的 `discussion_method` 字段。
-- 调用所选方法 skill，执行其完整工作流。
+- **确认本轮讨论方法**：
+  - **Round 01** 默认 `socratic-grounded`（用户明示「直接进专家轮」时改用 `proj-experts`）；
+  - **Round 02+** 默认 `proj-experts`；用户显式指定其他方法 skill 时按指定执行；
+  - 记录到轮次文档 frontmatter 的 `discussion_method` 字段。
+- 调用所选方法 skill，执行其完整工作流；**`socratic-grounded` 时**按本文件「[苏格拉底六问类别](#苏格拉底六问类别ai-按需挑用非全套打)」inline 执行——挑 3–5 个最值得追问的点，不必全套打。
 - 按「事实基础」将方法产出**重组**进当轮文档（守住信息下限 + 三分离）。
 - 在默认可行、障碍带路、不谄媚不泼冷水的约束下展开讨论（**所选方法自身的态度规则优先**）。
 - 识别是否触发「无现成方案 / 科研前沿」专轨；若是，产出 `EXP-xx` 草案（含继续/中止）。
 - 可含：方案对比、权衡、开放问题；对弱背景用户用少量具体二选一问题降低表达负担。
+- **苏格拉底澄清轮特殊约定**（仅 `discussion_method: socratic-grounded` 时）：
+  - 本轮**不产出** `INV`/`ORD`（除非用户显式确认升级），命题以「候选 ORD」「候选 EXP 假设」形式落到「本轮决定 → 待确认」节，留给后续专家轮攻防；
+  - 默认**单轮**——继续追问意味着已可进入专家攻防；如必要多轮则文件名 `01-苏格拉底-焦点A.md`、`02-苏格拉底-焦点B.md`，专家轮从 `03-` 起；
+  - 苏格拉底过程中若发现 BRAINSTORM 写反/写偏 → 允许用户回改 BRAINSTORM（在本 skill 工作流 §0「冻结时机」之前）。
 
 ### 3b. 讨论就绪评估（每轮建议）
 
@@ -395,7 +466,7 @@ proj-shape → proj-plan 的唯一衔接点是 `DECISIONS.md`。当讨论状态�
 
 ## 触发词
 
-想法讨论 · proj-shape · 多轮细化 · 模糊变明确 · 前沿 · 科研 · 无现成方案 · 可验证尝试 · 继续标准 · 中止标准 · 讨论够了没 · ready-for-implementation · EXP · discuss · DECISIONS · 切换讨论方法 · discussion_method · pre-mortem · socratic · 方法可替换
+想法讨论 · proj-shape · 多轮细化 · 模糊变明确 · 前沿 · 科研 · 无现成方案 · 可验证尝试 · 继续标准 · 中止标准 · 讨论够了没 · ready-for-implementation · EXP · discuss · DECISIONS · 切换讨论方法 · discussion_method · pre-mortem · socratic · 方法可替换 · brainstorm · BRAINSTORM · 初始想法 · 想法捕获 · 苏格拉底澄清 · socratic-grounded · 三段式入口 · 六问
 
 ## 明确不触发本 skill 的场景
 

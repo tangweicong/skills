@@ -35,7 +35,7 @@ pos: 辅助 skill，思维方法论
 
 修改本文件后，请同步更新：
 1. 本文件头部注释
-2. 上级目录 skills/README.md 的"现有 skills"表格
+2. 根 README.md 的 4 skill 索引表与 proj-experts 详细节（skills/README.md 已于 1.2.0 合并至根 README）
 -->
 
 # 专家研判（proj-experts）

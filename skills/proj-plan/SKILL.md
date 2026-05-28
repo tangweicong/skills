@@ -19,7 +19,7 @@ input: docs/discuss/DECISIONS.md
 output: docs/pmo/（Round A/B + rolling phase-NN/）
 pos: 落地规划 skill；proj-shape 之后、执行之前
 
-修改本文件后，请同步更新 skills/README.md。
+修改本文件后，请同步更新根 README.md 的 4 skill 索引表与 proj-plan 详细节（skills/README.md 已于 1.2.0 合并至根 README）。
 -->
 
 # 项目蓝图（proj-plan）
