@@ -6,6 +6,36 @@
 
 ---
 
+## [1.3.0] — 2026-06-02
+
+新增第 5 个 skill `proj-survey`（brownfield 历史项目接管入口）。09 轮立项 + EXP-05 dogfood 试跑（passed）+ 10 轮起草发布。
+
+### Added
+
+- **`skills/proj-survey/SKILL.md`**（191 行 · brownfield 接管入口）：读既有系统 → 三分离现状基线 → 意图(to-be)重建评估 → GATE-S 人审批分支（可 plan → proj-plan / 仅 audit → 审计报告，可回流 proj-shape）；含真相源优先级（测试>代码>git>docs>口述）、不可违背 S-1~4、工作流 0–6、分支判据（provisional · EXP-06 待验证）、大 repo 分层降级、失败模式
+- `skills/proj-survey/assets/` 3 个 templates：`baseline-template.md`（现状基线 · 三分离 + 已完成/未完成/质量/待验证 + 意图评估 + GATE-S 摘要 + 误报率自检）/ `audit-report-template.md`（分支 B · 内部一致性 findings + 置信度，不作保证）/ `survey-handoff-template.md`（分支 A → proj-plan · 既成约束 + WBS 三态种子）
+- `docs/discuss/09-历史项目接管-proj-survey.md`：立项讨论（ORD-23~26 + EXP-05/06）；`docs/discuss/10-proj-survey起草.md`：起草执行轮
+- `docs/survey/2026-06-01-baseline.md`：EXP-05 dogfood 产物（本仓库自动现状基线）
+- DECISIONS.md 新增 ORD-23~26（proj-survey 立项 + 分支判据 + 审计终端 + proj-plan 衔接）+ EXP-05/06
+
+### Trial outcome（EXP-05）
+
+- **passed**：本仓库 dogfood 自动现状基线，事实层 **0/16 误报 = 0%** < 10% 阈值（用户「全对」）；分支判定「可 plan」与人判一致
+- **caveat**：本 repo 属「intent 易重建」简单端，**未压测 intent 不可重建难例**（→ EXP-06 仍 pending，已嵌入 proj-survey §分支判据为 provisional + GATE-S 兜底）
+
+### Changed
+
+- **`skills/proj-plan/SKILL.md`**（302 → 319 行）落实 ORD-26 brownfield 入口：新增 `## Brownfield 接管入口（ORD-26）` 节（读 proj-survey handoff 代替 DECISIONS）+ §0 前置改「入口二选一」+ Round A/B 加 brownfield 子步 + WBS 标三态
+- `skills/proj-plan/assets/wbs-template.md`：WBS 树新增「状态（brownfield）」列（已完成/进行中/待做；已完成=既成约束不重新规划）
+- `skills/proj-plan/assets/project-context-template.md`：新增「项目类型（新建/接管）」+「上游来源」字段 + 「现状基线摘要（仅 brownfield）」节
+- `skills/proj-survey/assets/survey-handoff-template.md`：移除「ORD-26 待落实」caveat（已落实，指向 proj-plan §Brownfield 接管入口）
+
+### 待落实（下一步）
+
+- **EXP-06**：找一个 intent 难重建的真实 repo 压测分支判据（暂放）
+
+---
+
 ## [1.2.0] — 2026-05-28
 
 proj-shape 新增三段式入口（BRAINSTORM → 苏格拉底澄清轮 → 专家讨论轮），降低初次表达负担 + 用苏格拉底六问为专家轮框定方向；同时合并双 README（删除 `skills/README.md`，统一到根 README）。

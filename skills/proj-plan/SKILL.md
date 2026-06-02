@@ -10,8 +10,9 @@ description: >-
   artifact maintenance. Pairs with proj-experts + proj-shape (Business
   Case stage).
 compatibility: >-
-  Requires docs/discuss/DECISIONS.md (ready-for-implementation). Writes under
-  project-root docs/pmo/. Updates EXP-xx in DECISIONS. Does not execute builds.
+  Requires docs/discuss/DECISIONS.md (ready-for-implementation) OR a proj-survey
+  brownfield handoff (docs/survey/*-handoff.md). Writes under project-root
+  docs/pmo/. Updates EXP-xx in DECISIONS. Does not execute builds.
 ---
 
 <!--
@@ -110,6 +111,21 @@ proj-plan PMP **覆盖边界** = Initiate + Plan（rolling）+ 规划侧 M&C + �
 | 产出 | `docs/discuss/`（轮次 + `DECISIONS.md`）| `docs/pmo/`（charter / WBS / phase plans / ...）| `phase-NN/acceptance.md` + `.cursor/agents/*.md`（可选）|
 | 边界 | 不写 PM artifact | **不写**新 INV / ORD；**不写**代码 / 执行（INV-04）| 不写新 INV / ORD；不写计划；不规划 model 选择策略 |
 
+## Brownfield 接管入口（ORD-26）
+
+> 接管历史项目时，**上游不是 DECISIONS 而是 `proj-survey` 的规划交接** `docs/survey/*-handoff.md`（intent 可信重建 → 可 plan 分支的产物）。本节是 proj-plan 的第二入口。
+
+| 来源 | 进 proj-plan 的去向 |
+|------|---------------------|
+| handoff §**既成约束（已完成）** | 写入 `charter.md`「背景/现状」+ WBS 标 **`已完成`**（三态），**不重新规划** |
+| handoff §**未完成工作** | WBS 标 **`待做`/`进行中`**（三态）→ phase-roadmap 划分 |
+| handoff §成功标准 / 范围边界 | charter 验收基线（替代 DECISIONS 的成功标准）|
+| handoff §已知风险 / 待验证 | risk-register（F）/ 登记为待跑 EXP |
+
+**WBS 三态（ORD-26 · 仅 brownfield）**：每个 WBS 项标 `已完成 / 进行中 / 待做`；**`已完成` 项是既成约束**，phase-roadmap 与 phase plan **不得**把它当新工作（否则违反"接管"语义）。greenfield 项目无此列。
+
+**自动 + GATE**：proj-survey baseline 自动生成、人在 GATE-S 已审批分支；proj-plan 这里**直接消费 handoff**，正常走 Round A → GATE-0（不重复 survey 的盘点）。handoff 缺失成功标准/范围边界等关键字段 → 回 proj-survey 或与人补齐，**不**自行臆造。
+
 ## Sub-agent dispatch manifest（对 proj-run 的承诺字段 · ORD-15）
 
 > 本 skill 的 `phase-NN/plan.md` 模板**新增可选段** `## Sub-agent dispatch manifest`，作为对下游 `proj-run` skill 的承诺字段（类比 proj-shape → proj-plan 的 `DECISIONS.md` 承诺）。
@@ -195,12 +211,13 @@ docs/pmo/
 
 ### 0. 前置
 
-- `DECISIONS.md` 为 `ready-for-implementation` 或用户显式授权。
+- **入口二选一**：(a) `DECISIONS.md` 为 `ready-for-implementation` 或用户显式授权；(b) **brownfield**：`proj-survey` handoff `docs/survey/*-handoff.md`（见 §Brownfield 接管入口）。
 - 确保 `docs/pmo/` 存在。
 
 ### Round A · Initiate
 
 1. `project-context.md` → `tailoring-decision.md` → `initiation-charter.md`
+   - **brownfield**：`project-context.md` 标项目类型=接管 + 引 handoff；charter「背景/现状」纳入 handoff §既成约束
 2. `human-read-manifest.md`：**[Round-A] 固定 2 项** + 预留 GATE 槽位（≤5）
 3. **GATE-0** 用户确认
 
@@ -208,7 +225,7 @@ docs/pmo/
 
 1. 定稿 `charter.md` → manifest **GATE-1**
 2. 用户确认 GATE-1 → 并行写：
-   - `wbs.md`（L1–L2，**无**阶段顺序表）
+   - `wbs.md`（L1–L2，**无**阶段顺序表；**brownfield 须标三态** `已完成/进行中/待做`，已完成项为既成约束不重新规划 · ORD-26）
    - `phase-roadmap.md`（阶段、里程碑、WBS 映射、依赖；**无任务表**）
 3. 用户确认 GATE-2 → 写：
    - `integration-plan.md`（子计划索引）

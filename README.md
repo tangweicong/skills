@@ -2,7 +2,7 @@
 
 个人沉淀的 [Agent Skills](https://agentskills.io) 集合，可在 Cursor、Claude Code 等支持 Skills 的 Agent 中使用。
 
-本仓库包含 **4 个可配合使用的 skill**，对应 PMP 4 大 Process Group，覆盖从模糊想法到执行落地的完整链路：
+本仓库包含 **4 个正向 skill**（对应 PMP 4 大 Process Group，覆盖从模糊想法到执行落地的完整链路）**+ 1 个 brownfield 接管入口 `proj-survey`**：
 
 | Skill | 中文名 | PMP 对应 | 一句话 | 主要产出 |
 |-------|--------|---------|--------|----------|
@@ -10,6 +10,9 @@
 | [proj-shape](./skills/proj-shape/) | 想法收敛 | Initiating · 多轮决议 | 以实现为导向的多轮讨论留痕 + 决定汇总 + 可验证尝试 | `docs/discuss/` |
 | [proj-plan](./skills/proj-plan/) | 项目蓝图 | Initiate(charter) + Planning + 规划侧 M&C + Closing | 承接决定，做 PMP 分层规划 + GATE + analyze + dispatch manifest 承诺字段 | `docs/pmo/` |
 | [proj-run](./skills/proj-run/) | 执行调度 | Executing | 承接 plan + dispatch manifest，调度 sub-agent + validation gate + escalate | `phase-NN/acceptance.md` + `.cursor/agents/*.md` |
+| [proj-survey](./skills/proj-survey/) | 现状勘测 | 接管入口（brownfield）| 读既有系统 → 三分离现状基线 → GATE-S 分支：可 plan → proj-plan / 仅 audit → 审计报告 | `docs/survey/` |
+
+> **双入口**：新项目走 `proj-shape → proj-plan → proj-run`；**接管历史项目走 `proj-survey`**，它判定能否直接规划（→ proj-plan）还是只能做完整性审计。
 
 ```
 模糊想法
@@ -224,6 +227,29 @@ docs/pmo/phase-NN/
 
 ---
 
+## proj-survey（现状勘测 · 接管入口 / brownfield）
+
+**做什么**：接管**已有代码/文档的历史项目**时，AI **自动**读既有系统（按 测试 > 代码 > git/issue > docs > 口述 优先级采集真相源），产出**三分离现状基线**（已查证事实 / 推理 / 待验证），做意图(to-be)重建评估，经 **GATE-S** 人审批后分支。
+
+**为什么独立**：正向 4 skill 都从「人的想法」出发，没有任何一个读既有系统；接管历史项目是独立关注点，故单独成 skill（与 proj-shape 并列为第二入口）。
+
+**两个分支**：
+
+| 分支 | 条件 | 产出 | 下游 |
+|------|------|------|------|
+| **A · 可 plan** | intent 可信重建 | 规划交接（已完成范围=既成约束 + 未完成工作=WBS 三态种子）| → proj-plan（brownfield 入口）|
+| **B · 仅 audit** | intent 不可重建 | 完整性审计报告（findings + 置信度，**不**作「无缺失/无 bug」保证）| 终端；可选回 proj-shape 补 intent |
+
+**关键纪律**：文档说的 ≠ 代码做的（docs 单方声称入「待验证」）；「自动」= baseline 生成全自动 + 人仅在 GATE-S 拍板（人只读 ≤5 项摘要）；审计分支无 intent 时只评内部一致性，不作正确性保证。
+
+**产出目录**：`docs/survey/`（基线 + handoff 或 审计报告）。
+
+**触发词示例**：proj-survey · 现状勘测 · 历史项目接管 · 遗留 · legacy · brownfield · 逆向盘点 · 完整性评审 · as-is · takeover
+
+**详细说明**：[skills/proj-survey/SKILL.md](./skills/proj-survey/SKILL.md)
+
+---
+
 ## 推荐组合用法
 
 ### 完整链路（新项目）
@@ -244,6 +270,12 @@ docs/pmo/phase-NN/
 ### 已有 plan + dispatch manifest，直接执行
 
 若项目已有 `phase-NN/plan.md` 含 `## Sub-agent dispatch manifest` 段 → 直接用 `proj-run`
+
+### 接管历史项目（brownfield）
+
+「帮我接管这个已有项目 / 摸清现状」→ `proj-survey` 自动生成 `docs/survey/` 现状基线 → GATE-S 人审批分支：
+- intent 可信重建 → 交 `proj-plan` 规划未完成工作
+- intent 不可重建 → 完整性审计报告（findings + 置信度）；如需继续 → 回 `proj-shape` 补 intent
 
 ---
 
