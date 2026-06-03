@@ -4,7 +4,9 @@
 > 历史细节与推理过程见各轮次文件；本文仅维护**当前有效**的决定汇总。  
 > **同步**：与 `docs/discuss/NN-*.md` 互相同步更新；禁止只改本文件或只改轮次其一。
 
-最后更新：2026-06-02（轮次 10 · `proj-survey` v1 起草发布——`skills/proj-survey/SKILL.md`（191 行）+ 3 assets；validator 5/5 退 0；EXP-05 流程固化进工作流；EXP-06 嵌入 §分支判据为 provisional + GATE-S 兜底；ORD-26 后半=proj-plan brownfield 入口/WBS 三态仍待落实；详见 `10-proj-survey起草.md`）
+最后更新：2026-06-03（轮次 11 · proj-plan 新增**规划原则「JIT / 恰好足够」= ORD-27**——用户已拍板落实：定位=命名既有 rolling-wave 机制 + 补 LRM 时机判据 + 写适用/非适用边界，**不升 INV**（普通决定）；与模式 T/F 正交（广度轴 vs 时间/深度轴）；**无根本冲突**（INV-02 被强化，charter/WBS L1–L2/phase-roadmap 提前生成由边界条款消解）；已落实到 `skills/proj-plan/SKILL.md` §规划原则·JIT + README；详见 `11-jit规划原则.md`）
+
+历史最后更新：2026-06-02（轮次 10 · `proj-survey` v1 起草发布——`skills/proj-survey/SKILL.md`（191 行）+ 3 assets；validator 5/5 退 0；EXP-05 流程固化进工作流；EXP-06 嵌入 §分支判据为 provisional + GATE-S 兜底；ORD-26 后半=proj-plan brownfield 入口/WBS 三态仍待落实；详见 `10-proj-survey起草.md`）
 
 历史最后更新：2026-06-01（轮次 09 · 历史项目接管能力立项 → 新增第 5 个 skill `proj-survey`：ORD-23~26 + EXP-05/06；双入口流水线 = 正向 experts→shape→plan→run / 接管 survey→{plan | 审计终端}；详见 `09-历史项目接管-proj-survey.md`）
 
@@ -73,6 +75,7 @@
 | ORD-23 | **建立第 5 个 skill `proj-survey`** 专管 brownfield 逆向盘点（读既有系统 → 现状基线 → 分支）；**双入口流水线**：正向 `proj-experts→proj-shape→proj-plan→proj-run`，接管 `proj-survey → {intent 可信→proj-plan→proj-run | intent 不可信→审计终端}`；命名遵循 proj-* 体系 | `09-…md` §讨论；用户 @本轮 GATE（arch=new_skill, name=survey）；推理 · ORD-17 拆分先例 | 2026-06-01 | **已起草 v1**（`skills/proj-survey/SKILL.md` 191 行 + 3 assets；10 轮）|
 | ORD-24 | **proj-survey 分支判据 = 「意图(to-be)是否可信重建」**（**非**「文档是否存在」）；现状基线每条 finding 复用 proj-shape **三分离**（事实/推理/待验证）标注；意图来源优先级 = 测试 > 代码结构 > git log/issue > docs/README > 用户口述（含冲突解决规则，待 EXP） | `09-…md` §讨论；用户 @本轮；推理 · 体系一致性（proj-shape 三分离外推） | 2026-06-01 | **已落实**到 proj-survey §真相源优先级 + §三分离标注 + §分支判据（10 轮）|
 | ORD-25 | **审计分支（intent 不可信）作为 proj-survey 终端分支，v1 不独立成第 6 个 skill**；产出 = **findings + 置信度**，**不**作「无缺失 / 无 bug」保证；无 intent 时「完整性」仅限**内部一致性**（死代码/未接线模块/TODO/测试通过状态/文档漂移/已知反模式）；审计分支可回流 `proj-shape` 与人补 intent | `09-…md` §讨论；用户 @本轮 GATE（audit=terminal）；推理 · 逻辑约束（无 oracle 不可判定正确性）+ proj-shape 反过早抽象 | 2026-06-01 | **已落实**到 proj-survey S-2 + 分支 B + audit-report-template（10 轮）|
+| ORD-27 | proj-plan 新增**规划原则「JIT / 恰好足够」**——(a) 命名既有 rolling-wave 机制 + 挂真实出处（PMBOK rolling wave / progressive elaboration + Lean LRM；JIT 编译为借用类比）；(b) 判据 = LRM「推迟到 不决策代价 > 等待收益 的那一刻才展开」；(c) **边界**：适用=细节展开深度+可逆决策；非适用=范围/阶段骨架+授权+不可逆决策（故意提前）；(d)「推迟≠省略 artifact」防滥用；(e) 与模式 T/F 正交（T/F=广度轴，JIT=时间/深度轴），**不升 INV** | `11-jit规划原则.md` §讨论；用户 @本轮原话 + @本轮拍板；推理 · proj-experts 视角 A/B；依据 [PMBOK rolling wave](https://www.oreilly.com/library/view/q-as/9781628254624/a_chapter06.xhtml) + [progressive elaboration](https://www.projectmanagement.com/wikis/295452/progressive-elaboration) + [LRM](https://blog.codinghorror.com/the-last-responsible-moment/) | 2026-06-03 | **已落实**到 `skills/proj-plan/SKILL.md` §规划原则·JIT + 根 README；**一致性回灌**到 `tailoring-rules.md`（广度/深度轴正交说明）+ `proj-run/SKILL.md`（§设计 vision 继承段）|
 | ORD-26 | **proj-survey → proj-plan 衔接** = proj-plan 加 **brownfield 入口**（读 baseline 代替/补充 DECISIONS）+ **WBS 三态**（已完成/进行中/待做，避免把已完成当新工作）；「自动」= **baseline 生成全自动 + 人仅在分支 GATE 审批**（对齐 INV-01；人不整理，只拍板），人只读 ≤N 项摘要（复用 human-read-manifest 精神） | `09-…md` §讨论；用户 @本轮（要 AI 自动、不需人工整理）；推理 · INV-01 精神 | 2026-06-01 | **已全部落实**：proj-survey 侧（§角色分工 + GATE-S + handoff 模板）+ **proj-plan brownfield 入口**（SKILL.md §Brownfield 接管入口 + §0 入口二选一 + Round A/B + WBS 三态列 + project-context 项目类型字段）（10 轮）|
 
 ## 待验证尝试（落地阶段执行）
@@ -119,3 +122,6 @@
 | 2026-06-02 | 部分落实 | ORD-26 | `skills/proj-survey/` | proj-survey 侧已落实（角色分工/GATE-S/handoff 模板）；proj-plan 后半另记 |
 | 2026-06-02 | 落实 | ORD-26 | `skills/proj-plan/SKILL.md`（319 行）+ wbs-template + project-context-template | proj-plan brownfield 入口完成：§Brownfield 接管入口节 + §0 入口二选一 + Round A/B brownfield 子步 + WBS 三态列（已完成/进行中/待做）+ project-context 项目类型字段；validator 5/5 退 0。ORD-26 **全部落实** |
 | 2026-06-02 | 状态 | EXP-06 | `10-…md` | 维持 pending；嵌入 proj-survey §分支判据为 provisional + GATE-S 兜底；待 intent 难重建真实 repo 压测 |
+| 2026-06-03 | 新增 | ORD-27 | `11-jit规划原则.md` | proj-plan 新增规划原则「JIT / 恰好足够」：命名既有 rolling-wave 机制 + 补 LRM 时机判据 + 写适用/非适用边界；与模式 T/F 正交；不升 INV。查证 = PMBOK rolling wave/progressive elaboration + Lean LRM 为真实出处，JIT 编译为借用类比 |
+| 2026-06-03 | 落实 | ORD-27 | `skills/proj-plan/SKILL.md`（§规划原则·JIT）+ 根 README | 用户本轮拍板；adopt + 落点=设计 vision 后独立小节 |
+| 2026-06-03 | 落实扩展 | ORD-27 | `skills/proj-plan/assets/tailoring-rules.md` + `skills/proj-run/SKILL.md` | 一致性回灌（非新决定）：tailoring-rules 加「广度轴 vs JIT 时间/深度轴正交 + 推迟≠省略」交叉引用；proj-run §设计 vision 加「继承 ORD-27 + 执行侧恰好足够=dispatch 决策树+iteration budget」一段（不新增机制）|

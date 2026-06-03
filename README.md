@@ -175,6 +175,8 @@ docs/pmo/
 
 **模式**：Coach hybrid 裁剪——**T**（精简）或 **F**（全量子计划），由用户在 GATE-0 确认。
 
+**规划原则 · JIT（ORD-27）**：恰好足够、在对的时间规划——细节推迟到 Last Responsible Moment 才展开（行业出处 = PMBOK rolling wave / progressive elaboration + Lean LRM；JIT 编译为借用类比）。边界：可推迟的是*细节深度+可逆决策*，范围/阶段骨架与授权（charter / WBS L1–L2 / phase-roadmap）**故意提前**；推迟≠省略 artifact。与模式 T/F 正交（T/F=广度轴，JIT=时间/深度轴）。
+
 **立场声明**：SKILL.md 含 vision + 借鉴/自创术语标注 + 基准版本声明（PMBOK 6/7/8 + GitHub Spec Kit 机制借鉴 + 学术 Agentic PM）+ Sub-agent dispatch manifest 段（ORD-15 对 proj-run 的承诺字段）。
 
 **与 proj-shape / proj-run 的衔接**：

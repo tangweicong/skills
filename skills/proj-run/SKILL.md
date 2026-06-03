@@ -46,6 +46,8 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 
 与 [PMBOK 8 AI Appendix](https://mypreppilot.com/pmp/learn/pmbok-8th-edition-ai-artificial-intelligence) 立场对齐：**AI augment, human accountable for critical decisions**（特别是 validation 反复失败时的 escalate）。
 
+**继承 proj-plan 的 JIT 规划原则（ORD-27）**：proj-run 只执行**当前阶段**那份「恰好足够」的 rolling-wave plan，**不**把未来阶段的细节提前拉进来执行。执行侧的「恰好足够」已落在两处既有机制，无需新增：**§Sub-agent dispatch 决策树**（不为了用而用——只在该 dispatch 时 dispatch）+ **iteration budget**（不过度迭代）。
+
 ## 立场声明（借鉴 / 自创）
 
 > 让用户与 agent 能逐条判断"这是行业标准 / 借鉴 / 本 skill 自创"。**未在此声明的术语不应被当作 PMI 行业标准。**

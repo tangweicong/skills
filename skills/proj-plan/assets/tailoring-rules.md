@@ -1,6 +1,8 @@
 # Tailoring 规则库（Coach hybrid · 规则侧）
 
 > AI 读 `DECISIONS` + `project-context` 后，用本表 **约束建议**；最终模式须 **GATE-0 用户确认**。
+>
+> **轴向**：本表是**广度轴**——决定「做哪些 artifact」（T = 最小集 / F = 全量）。**与之正交的时间/深度轴**——每个 artifact「何时展开到多深」——见 [SKILL.md §规划原则 · JIT](../SKILL.md)（ORD-27）。**别把模式 T 误当成「省略细节」**：T 只是少做几类 artifact；选中的 artifact 仍按 JIT 在对的时间展开（rolling wave），**推迟 ≠ 省略**。
 
 ## 规则 ID 与默认模式
 

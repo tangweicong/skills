@@ -52,6 +52,23 @@ proj-plan 借鉴 **SDD harness 范式**（spec-as-truth、constitution-as-guardr
 
 体系结构对应 [APM 开源框架](http://github.com/sdi2200262/agentic-project-management) 的 Planner（best-minds + discuss）/ Manager（pmo）/ Workers（execute）三角色。
 
+## 规划原则 · JIT（恰好足够 / 在对的时间规划）
+
+> **行为原则**（ORD-27；与模式 T/F 正交）。「JIT」是本 skill 借用的**类比**（取自 JIT 编译）；行业出处 = PMBOK **rolling wave planning** / **progressive elaboration**（[PMBOK 6 §6.2.2.3](https://www.oreilly.com/library/view/q-as/9781628254624/a_chapter06.xhtml)、[progressive elaboration](https://www.projectmanagement.com/wikis/295452/progressive-elaboration)）+ Lean **Last Responsible Moment**（[Poppendieck](https://blog.codinghorror.com/the-last-responsible-moment/)）。
+
+**原则**：每个规划细节**推迟到「再不展开就会因缺信息而被迫默认决策」的那一刻**才展开（LRM 判据 = 不决策的代价 > 等待的收益）；不做超前的细节规划。
+
+**边界（防滥用 · 必读）**：
+
+| | 对象 | 处理 |
+|---|------|------|
+| **适用**（可推迟）| 细节展开深度、可逆决策（phase plan 任务表、WBS L3+ 分解） | 推迟到 LRM |
+| **非适用**（故意提前）| 范围骨架（WBS L1–L2）、阶段骨架（phase-roadmap）、授权（charter）、不可逆决策 | 早定——LRM 明示「late commitment 不得退化为 no commitment」 |
+
+**推迟 ≠ 省略 artifact**：JIT 约束的是*展开时机与深度*，不是*是否产出该 artifact*（否则撞 §失败模式「仅 WBS 无 phase-roadmap → 不完整」）。
+
+本原则**解释**既有结构：INV-02（细任务仅在 phase plan）、phase-roadmap「无任务表」、WBS 仅 L1–L2、"L3+ rolling 进 phase plan" 均为 rolling wave 的实现。与裁剪轴正交——**模式 T/F 管「做哪些 artifact」（广度轴）；JIT 管「每个 artifact 何时展开到多深」（时间/深度轴）**。
+
 ## 立场声明（借鉴 / 自创）
 
 > 让用户与 agent 能逐条判断"这是行业标准 / 借鉴 / 本 skill 自创"。**未在此声明的术语不应被当作 PMI / SDD 行业标准。**
