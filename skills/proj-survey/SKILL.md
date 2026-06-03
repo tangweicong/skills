@@ -9,7 +9,7 @@ description: >-
   历史项目 / 遗留代码 / legacy / brownfield / 现状基线 / 逆向盘点 / 完整性评审 / takeover。
 compatibility: >-
   目标 = 任意已有代码/文档的项目根。产出现状基线（默认 docs/survey/）。可衔接 proj-plan
-  （brownfield 入口，待落实）或产出终端审计报告。不写新 INV/ORD（归 proj-shape）；不执行、不规划。
+  （brownfield 入口，见 proj-plan §Brownfield 接管入口 · ORD-26）或产出终端审计报告。不写新 INV/ORD（归 proj-shape）；不执行、不规划。
 ---
 
 <!--
