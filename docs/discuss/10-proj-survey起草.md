@@ -81,3 +81,4 @@ EXP-05 跑通的流程（采集→实跑测试→三分离基线→意图评估�
 | 版本 | 日期 | 说明 |
 |------|------|------|
 | 1.0 | 2026-06-02 | proj-survey v1 起草 + EXP-05 流程固化 |
+| 1.1 | 2026-06-29 | **EXP-06 partial**（轮次 12 择机推进）：分支判据**算子化**（4 维→可观测信号+0/1/2+组合规则 R1/R2/R3，D1/D2 可机判·D3/D4 半机判）；本仓库→PLAN 复现 EXP-05（可复现）+ 合成难例→AUDIT（区分力）；难端「与独立人判一致」待真实 repo+用户人判（verifier≠maker）。用户 backfill_keep_prov → 算子化回灌 `proj-survey/SKILL.md` §分支判据，**保留 provisional + GATE-S**；validate 6/6。详见 `docs/pmo/proj-06-spike/`。开放问题 2（难例 repo 选取）仍待用户提供语料 |

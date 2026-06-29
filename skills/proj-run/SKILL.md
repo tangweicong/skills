@@ -3,16 +3,20 @@ name: proj-run
 description: >-
   PMP Executing skill 承接 proj-plan 的 phase-NN/plan.md（必含 Sub-agent
   dispatch manifest · ORD-21 5 字段闭环），负责 sub-agent 调度、model-tier
-  选择（3 Mode：α 自动 dispatch / β APM message bus 占位 / γ 手动模型切换）、
-  validation gate（structural/lint/behavioral · ORD-22）、失败 escalate 回
+  选择、validation gate（structural/lint/behavioral · ORD-22）、失败 escalate 回
   phase-NN/acceptance.md。承接 PMP 6 Executing 中 Direct & Manage Project Work
   + Manage Quality + Manage Project Knowledge 3 项（ORD-18），其余 7 项刻意外置。
   与 proj-plan 接口契约 = phase-NN/plan.md（artifact-level 文件契约）。
+  Dispatch 层 runtime 无关（ORD-28 · EXP-08 passed）：core 经 DispatchCapability
+  接口 spawn/collect，由 adapter 落地（Cursor 3 Mode α/β/γ / conversation-fallback
+  通用兜底 / Claude Code 骨架）。
 compatibility: >-
   Reads docs/pmo/phase-NN/plan.md (from proj-plan). Writes docs/pmo/phase-NN/
-  acceptance.md back. Optionally generates .cursor/agents/*.md (Mode α) or
-  .apm/bus/ structure (Mode β placeholder). Cursor sub-agent model field has
-  legacy plan limitation; see ORD-16 disclosure inside.
+  acceptance.md back. Core (dispatch decision tree / manifest / validation gate /
+  budget / escalate) is runtime-agnostic; only the spawn mechanism is per-adapter.
+  Cursor adapter optionally generates .cursor/agents/*.md (Mode α) or .apm/bus/
+  (Mode β placeholder) and has model_selectable=false (legacy plan; see ORD-16).
+  conversation-fallback adapter works on any runtime (no context isolation).
 ---
 
 <!--
@@ -48,6 +52,10 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 
 **继承 proj-plan 的 JIT 规划原则（ORD-27）**：proj-run 只执行**当前阶段**那份「恰好足够」的 rolling-wave plan，**不**把未来阶段的细节提前拉进来执行。执行侧的「恰好足够」已落在两处既有机制，无需新增：**§Sub-agent dispatch 决策树**（不为了用而用——只在该 dispatch 时 dispatch）+ **iteration budget**（不过度迭代）。
 
+## 与 `proj` 入口的关系（ORD-29）
+
+用户通常经 **`proj`**（流水线总入口 orchestrator）间接到达本 skill：`proj` 负责跨 skill 状态机 + 有界 loop + GATE 编排（ORD-30/31），本 skill 仍**专管 PMP Executing**（ORD-17/18 不变）。直接调用本 skill 亦可——`proj` 不改变本 skill 的职责边界。
+
 ## 立场声明（借鉴 / 自创）
 
 > 让用户与 agent 能逐条判断"这是行业标准 / 借鉴 / 本 skill 自创"。**未在此声明的术语不应被当作 PMI 行业标准。**
@@ -68,21 +76,22 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 
 | 术语 | 含义 | discuss 出处 |
 |------|------|------|
-| **3 Mode 表（α / β / γ）** | proj-run 的 3 个执行模式（按用户 plan 类型 + 跨 session 需求选择） | `docs/discuss/07-…md` §F1；DECISIONS.md ORD-19 |
+| **3 Mode 表（α / β / γ）** | proj-run 的 3 个执行模式（按用户 plan 类型 + 跨 session 需求选择）；ORD-28 后降为 **Cursor adapter 内部策略** | `docs/discuss/07-…md` §F1；DECISIONS.md ORD-19 |
+| **DispatchCapability 接口 + adapters** | runtime 无关的 `spawn`/`collect` 接口 + Cursor / conversation-fallback / Claude Code adapter；把 Cursor 专属机制隔离出 core | `12-…md` §EXP-08；`docs/pmo/proj-run-generic-spike/`；DECISIONS.md ORD-28 |
 | **Dispatch manifest 5 字段闭环** | manifest 段每条 task 必含 objective / specialist / validation criteria / iteration budget / escalate 5 字段 | `docs/discuss/08-…md` §视角 B；DECISIONS.md ORD-21 |
 | **Validation gate 3 类** | structural / lint / behavioral 3 类 validation 分类 | `docs/discuss/08-…md` §视角 B 延伸；DECISIONS.md ORD-22 |
 | **Sub-agent dispatch 决策树** | "task 输出是否需要被父 agent 持续回溯"作为第一判据；不按 cost | `docs/discuss/08-…md` §视角 C；DECISIONS.md ORD-20 |
 | **PMP 6 Executing 边界声明** | 承接 3 项 + 刻意外置 7 项的边界（与 proj-plan ORD-10 同构纪律）| `docs/discuss/08-…md` §视角 A；DECISIONS.md ORD-18 |
 
-### ORD-16 · Cursor sub-agent 当前约束披露（重要）
+### ORD-16 · Cursor adapter 约束披露（`model_selectable=false`）
 
-> 用户/agent 必须知晓的当前实现限制：
+> 这是 **Cursor adapter 的属性声明**（非 core 限制 · ORD-28）。其它 adapter（如 Claude Code `model_selectable=true`）不受此约束。用户/agent 必须知晓的当前 Cursor 实现限制：
 
 【已公开立场】Cursor sub-agent 的 `model` 字段在 **legacy request-based pricing plan 被 server 端忽略**——subagent 会 silently fallback 到父 model；仅 usage-based plan 的 expanded model selection 已 rolling out。详见 [Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)。
 
 **进一步约束（EXP-04 试跑发现）**：即使在 usage-based plan 下，Cursor Task tool 可调度的 sub-agent model 列表通常**只含 Composer Fast 不含 Composer Standard**——后者价差 30x，前者价差仅约 5x。这影响 model-tier 经济性测算（详见 §失败模式 F1）。
 
-3 Mode 选择策略见下一节。
+Dispatch 接口 + adapter 选择见下一节。
 
 ## PMP 6 Executing 边界声明（ORD-18 · 与 proj-plan ORD-10 同构）
 
@@ -108,7 +117,38 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 | Conduct Procurements | 项目级采购属 proj-plan ORD-10 已声明不含 | proj-plan / 对话 |
 | Manage Stakeholder Engagement | 同 Manage Communications | proj-plan |
 
-## 3 Mode 表（ORD-19 · 自创术语）
+## Dispatch capability 接口 + adapters（ORD-28 · EXP-08 passed · runtime 无关化）
+
+> core 只依赖 **DispatchCapability 接口**（`spawn`/`collect`）；「怎么真正生出 worker」由 adapter 落地。core 7 组件中 5 个（dispatch 决策树 / manifest / validation gate / iteration budget / escalate）本就 runtime 无关，**不经 adapter**。完整推导见 `docs/pmo/proj-run-generic-spike/`。
+
+### 接口契约（runtime 无关）
+
+```text
+DispatchCapability:
+  spawn(specialist_role, self_contained_prompt, refs) -> handle
+      启动一个 worker 执行该 task（self-contained · APM 原则）
+  collect(handle) -> artifact_path
+      取回 worker 产出（落到 artifact-index 登记的路径）
+  属性（adapter 各自声明）：context_isolation / model_selectable / cross_session
+```
+
+core 拿到 artifact 后**自己**跑 validation gate（ORD-22）+ iteration budget 重试 + 超 budget escalate——**不经 adapter**，故 runtime 无关。
+
+### Adapter 选择（取代旧「先选 Mode」的上位概念）
+
+```text
+1. 检测 runtime → 选 adapter（cursor / claude-code / conversation-fallback）
+2. adapter 内部按其能力选策略（如 cursor adapter 选 Mode α/β/γ）
+3. 首选 adapter 不可用 → 降级 conversation-fallback（永远可用 · context_isolation=false）
+```
+
+| adapter | isolation | model_selectable | cross_session | 实跑状态 |
+|---------|-----------|------------------|---------------|----------|
+| cursor | ✓ | ✗（ORD-16）| ✓ | EXP-04 验证 |
+| conversation-fallback | ✗ | ✗ | ✗ | EXP-08 实跑 |
+| claude-code | ✓ | ✓ | ? | 骨架 |
+
+### Cursor adapter = 3 Mode 表（ORD-19 · 自创术语 · 降为 adapter 内部策略）
 
 > Mode 选择按 **plan 类型 + 是否跨 session** 决定，**不**按 cost（视角 C 关切：cost 是 by-product 不是判据）。
 
@@ -118,7 +158,7 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 | **β**（message bus）| 跨 IDE session / 跨设备 / 单一 sub-agent 输出 > 父 context 承载 / 多 sub-agent 并行协作 | `.apm/bus/` 文件级通信；每个 sub-agent 一个独立 chat session；用户 cp/mv shuttle 消息（APM 原版）或 APM-Auto fork 自动化 | 任意 | [`assets/message-bus-template.md`](assets/message-bus-template.md)（**占位 · 无 runtime**）|
 | **γ**（手动模型切换）| legacy request-based plan + 同一 IDE session | 父 agent 默认 `@composer`；规划/评审节点用户手动 `@opus` 切换；**不**依赖 sub-agent dispatch | legacy request-based | — |
 
-### Mode 选择决策树
+#### Mode 选择决策树（Cursor adapter 内部）
 
 ```text
 1. 用户当前 plan 是 usage-based 还是 legacy？
@@ -134,6 +174,14 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 ```
 
 **实操默认**（EXP-04 试跑验证）：legacy plan 用户走 Mode γ；usage-based 用户走 Mode α；β 仅在前述特定触发条件时启用。
+
+### conversation-fallback adapter（通用兜底 · EXP-08 实跑）
+
+任何 runtime 可用。`spawn` = 父 agent 在**明确分隔的 scratch 文件**内按 self-contained prompt 扮演 specialist 完成 task；`collect` = 读该文件作为 artifact。**无 context 隔离 → 仅适合小 task**（与 §Sub-agent dispatch 决策树一致：context 密集 / 需父持续回溯的 task 本就该父直写，故 false 隔离不构成新风险）。EXP-08 已实跑通过（spawn→collect→validate 全 PASS，含 5 字段闭环 + cursor-token=0 负断言）。
+
+### Claude Code adapter（骨架 · 待真实环境补验）
+
+`spawn` = native subagents（`.claude/agents/` 或等效 Task tool）；`model_selectable=true`（**无 ORD-16 约束** → model-tier 经济性测算可能不同，但仍是 by-product 非判据 · ORD-20）。待真实 Claude Code 环境补全 + 实跑（EXP-08b · 非阻断）。
 
 ## Sub-agent dispatch 决策树（ORD-20 · 自创术语）
 
@@ -202,7 +250,7 @@ sub-agent 产出 → 父跑 validation
 
 - proj-plan 已交付 `docs/pmo/phase-NN/plan.md`（含 `## Sub-agent dispatch manifest` 段 · 5 字段闭环）
 - GATE-3 已通过（用户审过 plan + dispatch manifest）
-- 父 agent 已确定 3 Mode（α/β/γ）— 通过 §3 Mode 选择决策树
+- 父 agent 已选定 dispatch adapter + 其内部策略（§Adapter 选择 → 如 Cursor adapter 的 Mode α/β/γ）
 
 ### 1. Dispatch 准备
 
@@ -214,11 +262,12 @@ sub-agent 产出 → 父跑 validation
 
 按 plan.md `## 活动依赖` 节顺序（典型串行；视场景可并行）逐 task 执行：
 
-1. **Dispatch**：按 3 Mode 调用 sub-agent
-   - Mode α：父用 Task tool 调 `.cursor/agents/<name>.md` 配置的 sub-agent
-   - Mode β：父写 task 到 `.apm/bus/tasks/<task-id>.md`；通知用户开新 chat session 接手
-   - Mode γ：父 agent IDE 默认；用户 `@composer` 切换；任务对话内完成
-2. **Validation**：sub-agent 产出后，父跑 §Validation gate 3 类
+1. **Dispatch**：经选定 adapter `spawn` worker（接口层）
+   - Cursor adapter — Mode α：父用 Task tool 调 `.cursor/agents/<name>.md` 配置的 sub-agent
+   - Cursor adapter — Mode β：父写 task 到 `.apm/bus/tasks/<task-id>.md`；通知用户开新 chat session 接手
+   - Cursor adapter — Mode γ：父 agent IDE 默认；用户 `@composer` 切换；任务对话内完成
+   - conversation-fallback：父在分隔 scratch 文件内扮演 specialist；claude-code：native subagents
+2. **Validation**（core · 不经 adapter）：`collect` 产出后，父跑 §Validation gate 3 类
 3. **Iteration**：失败 → 按 ORD-21 iteration budget 重试；用尽 → escalate
 4. **归档**：通过 → 登记到 `docs/pmo/artifact-index.md` sub-agent 产出段 + 更新 `acceptance.md` §Sub-agent dispatch log 与 §token cost 段
 
@@ -265,7 +314,7 @@ sub-agent 产出 → 父跑 validation
 
 ## 触发词
 
-proj-run · 执行调度 · sub-agent · 子代理 · subagent dispatch · model-tier · 模型分层 · Opus 规划 · Composer 执行 · phase 执行 · dispatch manifest · validation gate · Mode α · Mode β · Mode γ · cursor agents · `.cursor/agents/` · message bus · `.apm/bus/` · APM · iteration budget · escalate · runway
+proj-run · 执行调度 · sub-agent · 子代理 · subagent dispatch · model-tier · 模型分层 · Opus 规划 · Composer 执行 · phase 执行 · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · conversation-fallback · runtime 无关 · Mode α · Mode β · Mode γ · cursor agents · `.cursor/agents/` · message bus · `.apm/bus/` · APM · iteration budget · escalate · runway
 
 ## 不触发本 skill
 

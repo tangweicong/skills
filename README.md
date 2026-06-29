@@ -2,16 +2,19 @@
 
 个人沉淀的 [Agent Skills](https://agentskills.io) 集合，可在 Cursor、Claude Code 等支持 Skills 的 Agent 中使用。
 
-本仓库包含 **4 个正向 skill**（对应 PMP 4 大 Process Group，覆盖从模糊想法到执行落地的完整链路）**+ 1 个 brownfield 接管入口 `proj-survey`**：
+本仓库包含 **1 个总入口 orchestrator `proj`** + **4 个正向 skill**（对应 PMP 4 大 Process Group，覆盖从模糊想法到执行落地的完整链路）**+ 1 个 brownfield 接管入口 `proj-survey`**（共 6 skill）：
 
 | Skill | 中文名 | PMP 对应 | 一句话 | 主要产出 |
 |-------|--------|---------|--------|----------|
+| [proj](./skills/proj/) | 总入口 | 流水线之上（orchestrator）| 用户唯一入口：薄 Supervisor + 有界规划-执行-验证 loop + GATE 编排，按序调下面 5 个专家；**不重做** host 路由 | 不直接产 artifact（编排各专家产出）|
 | [proj-experts](./skills/proj-experts/) | 专家研判 | Initiating · Business Case | 先查证，再模拟最懂的人怎么说（含选用理由 + 三档真实性标签）| 对话中的专家视角分析 |
 | [proj-shape](./skills/proj-shape/) | 想法收敛 | Initiating · 多轮决议 | 以实现为导向的多轮讨论留痕 + 决定汇总 + 可验证尝试 | `docs/discuss/` |
 | [proj-plan](./skills/proj-plan/) | 项目蓝图 | Initiate(charter) + Planning + 规划侧 M&C + Closing | 承接决定，做 PMP 分层规划 + GATE + analyze + dispatch manifest 承诺字段 | `docs/pmo/` |
 | [proj-run](./skills/proj-run/) | 执行调度 | Executing | 承接 plan + dispatch manifest，调度 sub-agent + validation gate + escalate | `phase-NN/acceptance.md` + `.cursor/agents/*.md` |
 | [proj-survey](./skills/proj-survey/) | 现状勘测 | 接管入口（brownfield）| 读既有系统 → 三分离现状基线 → GATE-S 分支：可 plan → proj-plan / 仅 audit → 审计报告 | `docs/survey/` |
 
+> **总入口**：用户通常只跟 **`proj`** 交互，由它编排下面 5 个专家并在 GATE 处交人；也可直接调用某个专家（如只要专家分析 → `proj-experts`）。
+>
 > **双入口**：新项目走 `proj-shape → proj-plan → proj-run`；**接管历史项目走 `proj-survey`**，它判定能否直接规划（→ proj-plan）还是只能做完整性审计。
 
 ```
@@ -52,6 +55,7 @@
 
 ```bash
 # Cursor 示例（在本仓库根目录执行）
+ln -s "$(pwd)/skills/proj"         ~/.cursor/skills/proj
 ln -s "$(pwd)/skills/proj-experts" ~/.cursor/skills/proj-experts
 ln -s "$(pwd)/skills/proj-shape"   ~/.cursor/skills/proj-shape
 ln -s "$(pwd)/skills/proj-plan"    ~/.cursor/skills/proj-plan
@@ -59,6 +63,26 @@ ln -s "$(pwd)/skills/proj-run"     ~/.cursor/skills/proj-run
 ```
 
 也可在对话中 `@` 引用仓库内的 `SKILL.md`，或直接说出触发词（见各 skill 下方）。
+
+---
+
+## proj（总入口 · orchestrator）
+
+**做什么**：proj-* 流水线的**用户唯一入口**。用户描述问题，由 `proj` 作**薄 Supervisor + 有界 plan-execute-verify loop + facade**，按序编排下面 5 个专家 skill 跑「想法 → 收敛 → 规划 → 执行 → 验证」闭环，并在 GATE 处停下交人。
+
+**关键纪律（ORD-30）**：`proj` **不重做** host 的 model-invocation 路由（host 已按 description 做单次 skill 选择）；它的增量 = host 给不了的**跨 skill 有状态序列 + GATE + loop**。
+
+**有界 loop（ORD-31）**：`STATE → CLASSIFY → PLAN → EXECUTE → VERIFY → GATE? → RE-ROUTE → MEMORY`；默认档 = phase 内自迭代、**到 GATE 必停交人**（autonomy slider，高自主档需用户显式授权）；circuit breaker 兜底。
+
+**调用对象（固定专家集 · Supervisor 模式）**：`proj-experts` / `proj-shape` / `proj-plan` / `proj-survey` / `proj-run`。
+
+**立场**：Supervisor/Routing 与「先求最简」借鉴 [Anthropic Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)；有界 loop 借鉴 [Addy Osmani Loop Engineering](https://addyo.substack.com/p/loop-engineering)；autonomy slider 借鉴 [Karpathy](https://www.latent.space/p/s3)；本地化组合为本 skill 自创（DECISIONS ORD-29/30/31；EXP-07 passed）。
+
+**何时不用**：只要某一专家（只做专家分析 / 只摸现状）→ 直接调该专家；一次性改 1 文件 → 直接执行。
+
+**触发词示例**：proj · 总入口 · 编排 · orchestrate · 端到端 · 从想法到落地 · 帮我推进这个项目 · 不知道下一步 · loop engineering · 闭环
+
+**详细说明**：[skills/proj/SKILL.md](./skills/proj/SKILL.md)
 
 ---
 
@@ -198,7 +222,15 @@ docs/pmo/
 
 **前置条件**：proj-plan 已交付 plan.md 含 `## Sub-agent dispatch manifest` 段（5 字段闭环：objective / specialist / validation criteria / iteration budget / escalate）；GATE-3 已通过。
 
-**3 Mode 表**（按用户 plan 类型 + 是否跨 session 选择，**不**按 cost）：
+**Dispatch 层 runtime 无关**（ORD-28 · EXP-08 passed）：core 经 **DispatchCapability 接口**（`spawn`/`collect`）调度，由 adapter 落地；core（决策树 / manifest / validation gate / budget / escalate）不含 runtime 专属硬编码。
+
+| adapter | context 隔离 | model 可选 | 实跑状态 |
+|---------|-------------|-----------|----------|
+| **cursor**（含 3 Mode α/β/γ）| ✓ | ✗（ORD-16）| EXP-04 验证 |
+| **conversation-fallback**（通用兜底）| ✗ | ✗ | EXP-08 实跑 |
+| **claude-code**（骨架）| ✓ | ✓ | 待补验 |
+
+**Cursor adapter 的 3 Mode 表**（按 plan 类型 + 是否跨 session 选择，**不**按 cost）：
 
 | Mode | 触发条件 | 实现方式 |
 |------|---------|----------|
@@ -221,9 +253,9 @@ docs/pmo/phase-NN/
 .apm/bus/                  # 仅 Mode β 时（用户人工 shuttle）
 ```
 
-**Cursor 当前约束**（ORD-16）：sub-agent `model` 字段在 legacy request-based plan 被 server 端忽略（详见 [Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)）；usage-based plan 通常也仅可调度 `composer-2.5-fast`（不可 standard）。**Mode 选择会按 plan 类型自动降级到 Mode γ**。
+**Cursor adapter 约束**（ORD-16 · `model_selectable=false`）：sub-agent `model` 字段在 legacy request-based plan 被 server 端忽略（详见 [Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)）；usage-based plan 通常也仅可调度 `composer-2.5-fast`（不可 standard）。**Mode 选择会按 plan 类型自动降级到 Mode γ**。其它 adapter（如 claude-code `model_selectable=true`）不受此约束。
 
-**触发词示例**：proj-run · 执行调度 · sub-agent · dispatch manifest · validation gate · Mode α/β/γ · `.cursor/agents/` · message bus · `.apm/bus/` · model-tier
+**触发词示例**：proj-run · 执行调度 · sub-agent · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · runtime 无关 · Mode α/β/γ · `.cursor/agents/` · message bus · `.apm/bus/` · model-tier
 
 **详细说明**：[skills/proj-run/SKILL.md](./skills/proj-run/SKILL.md)
 
@@ -300,7 +332,7 @@ uv run scripts/validate_skills.py
 cp -r template skills/my-new-skill
 ```
 
-详见 [CONTRIBUTING.md](./CONTRIBUTING.md)；本文件即 4 skill 索引（不再单独维护 `skills/README.md`）。
+详见 [CONTRIBUTING.md](./CONTRIBUTING.md)；本文件即 6 skill 索引（不再单独维护 `skills/README.md`）。
 
 变更历史见 [CHANGELOG.md](./CHANGELOG.md)。
 
