@@ -143,6 +143,17 @@ proj-plan PMP **覆盖边界** = Initiate + Plan（rolling）+ 规划侧 M&C + �
 
 **自动 + GATE**：proj-survey baseline 自动生成、人在 GATE-S 已审批分支；proj-plan 这里**直接消费 handoff**，正常走 Round A → GATE-0（不重复 survey 的盘点）。handoff 缺失成功标准/范围边界等关键字段 → 回 proj-survey 或与人补齐，**不**自行臆造。
 
+## 案例库 / 跨项目学习闭环（ORD-36）
+
+> proj-* 的**慢/外层双环学习反馈**：项目经验 → 案例 → 被未来项目消费 → 必要时回头修订 `INV/ORD/skill`。捕获 + 消费由本 skill **既有职责扩展**承载（不新增 skill）：**阶段 Close 捕获 / Round A 消费**。集中库在 proj-* skills 仓库 `docs/cases/`（[库说明](../../docs/cases/README.md) · [模板](assets/case-template.md)）。
+
+| 端 | 落点 | 动作 |
+|----|------|------|
+| **捕获**（Close）| 末阶段 `review.md` §经验教训之后 | **AI 从本项目 `DECISIONS.md` + `change-log.md` + `review.md` 派生案例草稿 + 人审** → 写入 `docs/cases/NN-{项目}.md`（用 case-template）|
+| **消费**（Initiate）| Round A 读 `DECISIONS` 时 | 查阅案例库**相似类型**案例 → 带入 charter / 风险 / ORD；**回填被消费案例 §消费记录**（闭环证据）|
+
+**纪律**（防 write-only · 头号失败模式）：① 案例 §消费记录 为空 = 未闭环；② 每案例必填 §治理变量检视（Argyris 双环：至少检视一条 INV/ORD/skill 该不该改，否则是只改 checklist 的假学习）。**自动化边界**：仅做「AI 派生草稿 + 人审」；全自动总结 / CBR 相似度检索引擎暂不做（YAGNI · 待案例累积 + 闭环证成）。
+
 ## Sub-agent dispatch manifest（对 proj-run 的承诺字段 · ORD-15）
 
 > 本 skill 的 `phase-NN/plan.md` 模板**新增可选段** `## Sub-agent dispatch manifest`，作为对下游 `proj-run` skill 的承诺字段（类比 proj-shape → proj-plan 的 `DECISIONS.md` 承诺）。
@@ -235,6 +246,7 @@ docs/pmo/
 
 1. `project-context.md` → `tailoring-decision.md` → `initiation-charter.md`
    - **brownfield**：`project-context.md` 标项目类型=接管 + 引 handoff；charter「背景/现状」纳入 handoff §既成约束
+   - **案例库消费（ORD-36）**：查阅 `docs/cases/` 相似类型案例，把可复用建议带入 charter / 风险；回填被消费案例 §消费记录
 2. `human-read-manifest.md`：**[Round-A] 固定 2 项** + 预留 GATE 槽位（≤5）
 3. **GATE-0** 用户确认
 
@@ -257,6 +269,7 @@ docs/pmo/
 1. 写 `plan.md` + `acceptance.md` → **GATE-3** 用户确认
 2. 执行（**非本 skill**）→ acceptance 前 **analyze**
 3. `review.md`：含 **circuit breaker**、lessons learned、末阶段收尾检查
+   - **末阶段案例捕获（ORD-36）**：AI 从本项目 `DECISIONS`+`change-log`+`review.md` 派生跨项目案例草稿（[case-template](assets/case-template.md)）+ 人审 → 写入 `docs/cases/`
 4. acceptance **不通过** → **禁止**下阶段 plan；EXP failed → 回 proj-shape
 5. 回写 `DECISIONS` EXP；变更记 `change-log`
 
@@ -325,6 +338,7 @@ docs/pmo/
 | 阶段 plan | [assets/plan-template.md](assets/plan-template.md) |
 | 验收 | [assets/acceptance-template.md](assets/acceptance-template.md) |
 | 评审 | [assets/review-template.md](assets/review-template.md) |
+| 跨项目案例（ORD-36 · 案例库 `docs/cases/`）| [assets/case-template.md](assets/case-template.md) |
 
 ## 触发词
 

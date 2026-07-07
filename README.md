@@ -74,6 +74,8 @@ ln -s "$(pwd)/skills/proj-run"     ~/.cursor/skills/proj-run
 
 **有界 loop（ORD-31）**：`STATE → CLASSIFY → PLAN → EXECUTE → VERIFY → GATE? → RE-ROUTE → MEMORY`；默认档 = phase 内自迭代、**到 GATE 必停交人**（autonomy slider，高自主档需用户显式授权）；circuit breaker 兜底。
 
+**设计立场（ORD-34 · Ashby）**：自动臂**有界多样性 by design**（circuit breaker 塌缩失败 / GATE 在分岔停 / budget 限重试）；**必要多样性由人在 GATE/分岔供给**——「有界」是显式设计选择而非能力缺陷，与 Supervised-AI 一致。
+
 **调用对象（固定专家集 · Supervisor 模式）**：`proj-experts` / `proj-shape` / `proj-plan` / `proj-survey` / `proj-run`。
 
 **立场**：Supervisor/Routing 与「先求最简」借鉴 [Anthropic Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)；有界 loop 借鉴 [Addy Osmani Loop Engineering](https://addyo.substack.com/p/loop-engineering)；autonomy slider 借鉴 [Karpathy](https://www.latent.space/p/s3)；本地化组合为本 skill 自创（DECISIONS ORD-29/30/31；EXP-07 passed）。
@@ -158,7 +160,7 @@ docs/discuss/
 → round 02+ 调 proj-experts 攻防；同步更新 DECISIONS.md
 
 用户：讨论够了吗？能不能开始做？
-→ 对照「讨论就绪」硬条件，更新 DECISIONS 状态为 ready-for-implementation（须用户确认）
+→ 对照「讨论就绪」硬条件 + 盲点双问（AI 最没把握 / 用户最大遗漏，单次执行、每条答案落点三选一：决定覆盖/EXP/明示接受），更新 DECISIONS 状态为 ready-for-implementation（须用户确认）
 ```
 
 **讨论状态**：`exploring` → `deciding` → `ready-for-implementation` / `blocked`
@@ -202,6 +204,8 @@ docs/pmo/
 **规划原则 · JIT（ORD-27）**：恰好足够、在对的时间规划——细节推迟到 Last Responsible Moment 才展开（行业出处 = PMBOK rolling wave / progressive elaboration + Lean LRM；JIT 编译为借用类比）。边界：可推迟的是*细节深度+可逆决策*，范围/阶段骨架与授权（charter / WBS L1–L2 / phase-roadmap）**故意提前**；推迟≠省略 artifact。与模式 T/F 正交（T/F=广度轴，JIT=时间/深度轴）。
 
 **立场声明**：SKILL.md 含 vision + 借鉴/自创术语标注 + 基准版本声明（PMBOK 6/7/8 + GitHub Spec Kit 机制借鉴 + 学术 Agentic PM）+ Sub-agent dispatch manifest 段（ORD-15 对 proj-run 的承诺字段）。
+
+**案例库 / 跨项目学习闭环（ORD-36）**：proj-* 的慢/外层双环学习反馈——集中库 [`docs/cases/`](./docs/cases/)（PMBOK Lessons Learned Register）。捕获=阶段 Close 时 AI 从本项目 DECISIONS+change-log+review 派生案例草稿+人审；消费=新项目 Round A 查阅相似案例带入 charter。**价值系于闭环消费**（写而不用=头号失败模式）；每案例必填「治理变量检视」（Argyris 双环）。**不新增 skill**；全自动总结/CBR 检索暂不做（YAGNI）。
 
 **与 proj-shape / proj-run 的衔接**：
 

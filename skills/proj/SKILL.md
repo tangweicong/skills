@@ -96,6 +96,14 @@ trigger（用户请求）
 
 **circuit breaker（硬规则）**：累计 VERIFY 失败 > 3 / 专家产出推翻 INV·ORD / host 与本 loop 出现双重触发 → abort + 交人。**不在本 skill 改决定**（推翻 INV/ORD → 回 proj-shape）。
 
+## 设计立场：有界多样性 + 人在分岔供给必要多样性（Ashby · ORD-34）
+
+按 Ashby 必要多样性定律「only variety can absorb variety」，调节器能吸收的扰动多样性受其**自身动作多样性上限**约束。本 skill 的自动臂**按设计是有界多样性**——circuit breaker 把多种失败模式**塌缩**成单一响应（abort + 交人）、GATE 在不连续点（分岔）**停**、iteration budget 限制重试；它**不**试图自动吸收项目情境的全部扰动。
+
+**必要多样性由人在 GATE / 分岔 / abort-retry 处供给**：人是恰好部署在突变点的高多样性调节器（即 §设计 vision 的 Sponsor + 关键决策）。
+
+> 即：自动 loop 的「有界」**不是能力缺陷而是显式设计选择**——把高多样性决策留给人，与 Supervised-AI 立场（ORD-31）一致。circuit breaker / GATE / autonomy slider 是这条立场的三个落点，而非彼此孤立的规则。
+
 ## GATE 清单（默认停点）
 
 - 改动 **shipped skill / 不可逆文件** 前 → 停，出 proposed diff 交人。
@@ -113,6 +121,7 @@ trigger（用户请求）
 | **Agent Skills** model-invocation | host 已做单次路由 → 本 skill 不重做 | [Anthropic Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills) |
 | **Addy Osmani** Loop Engineering | 有界 loop 5 要件 + verifier≠maker（ORD-31）| [Loop Engineering](https://addyo.substack.com/p/loop-engineering) |
 | **Karpathy** autonomy slider | 有界 loop + 人在环（ORD-31）| [Karpathy S3](https://www.latent.space/p/s3) |
+| **Ashby** Law of Requisite Variety | 自动臂有界多样性 by design；人在 GATE/分岔供给必要多样性（ORD-34）| [Ashby's Law](https://grahamberrisford.com/Bookvol2/1%20Ashbys%20law.htm) |
 | **PMBOK 8 / Agentic PM** | Supervised-AI 角色分工 | [arXiv 2601.16392](https://arxiv.org/html/2601.16392v1) |
 
 **本 skill 自创**（非行业标准）：把上述模式**本地化为 proj-* 流水线的薄总入口**——固定 5 专家集 + 有界 loop + GATE 清单 + autonomy slider 的具体组合（DECISIONS.md ORD-29/30/31）。
