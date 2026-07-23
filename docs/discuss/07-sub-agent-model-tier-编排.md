@@ -371,3 +371,7 @@
 | 1.1 | 2026-05-27 | 用户 @追问拆分独立 skill；新增 §讨论 5 + ORD-17 草案（idea-execute）；ORD-15/16 措辞调整；Q1-Q5 5 选项 |
 | 1.2 | 2026-05-27 | 用户全部确认（Q1=a / Q2.1=c / Q2.2=a / Q2.3=a / Q3=b / Q4=a / Q5=a）；集体重命名（旧 idea-* + best-minds-grounded → proj-*）；DECISIONS.md 同步；proj-run 骨架创建；本文档状态 → confirmed · synced；命名 `idea-execute` → `proj-run` |
 | 1.3 | 2026-05-27 | 用户追问 EXP 案例 → 追加 §讨论 6 案例精化：EXP-04 案例从"proj-experts i18n"（不能验证 model-tier 价值）改为"proj-run 完整 SKILL.md + assets 起草"（自然嵌套）；EXP-03 废止 N/A（本仓库不天然有 TR-04 项目）；DECISIONS.md 已同步 |
+
+## 同步注记（2026-07-07）
+
+- 修订 `ORD-16` → 条文从「Cursor sub-agent `model` 字段在 legacy plan 被 server 端忽略 / enum 仅 fast」修订为「**Cursor 3.3+ 条件可选**：显式 pin（Task tool `model` 参数 / `.cursor/agents/*.md` frontmatter）被尊重；legacy request-based plan 无 Max Mode 时强制 Composer 的半条保留」。触发 = 轮次 21 查证（Cursor 3.3 于 2026-05 变更）+ EXP-12 步1 本机实测（`docs/pmo/exp-12-spike/exp-12-result.md`）；用户 @轮次21 GATE 定序 after_exp。见 `DECISIONS.md` 变更日志（2026-07-07）+ `21-自动循环与模型分层评审.md`

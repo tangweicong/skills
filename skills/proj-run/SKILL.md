@@ -15,7 +15,8 @@ compatibility: >-
   acceptance.md back. Core (dispatch decision tree / manifest / validation gate /
   budget / escalate) is runtime-agnostic; only the spawn mechanism is per-adapter.
   Cursor adapter optionally generates .cursor/agents/*.md (Mode α) or .apm/bus/
-  (Mode β placeholder) and has model_selectable=false (legacy plan; see ORD-16).
+  (Mode β placeholder); model_selectable=true on Cursor 3.3+ (legacy plan without
+  Max Mode still forces Composer; see ORD-16 revised).
   conversation-fallback adapter works on any runtime (no context isolation).
 ---
 
@@ -83,13 +84,13 @@ proj-run 是 **PMP Executing Process Group** 的承载者，与 `proj-experts`�
 | **Sub-agent dispatch 决策树** | "task 输出是否需要被父 agent 持续回溯"作为第一判据；不按 cost | `docs/discuss/08-…md` §视角 C；DECISIONS.md ORD-20 |
 | **PMP 6 Executing 边界声明** | 承接 3 项 + 刻意外置 7 项的边界（与 proj-plan ORD-10 同构纪律）| `docs/discuss/08-…md` §视角 A；DECISIONS.md ORD-18 |
 
-### ORD-16 · Cursor adapter 约束披露（`model_selectable=false`）
+### ORD-16 · Cursor adapter 约束披露（`model_selectable` = 3.3+ 条件可选 · 2026-07-07 修订）
 
-> 这是 **Cursor adapter 的属性声明**（非 core 限制 · ORD-28）。其它 adapter（如 Claude Code `model_selectable=true`）不受此约束。用户/agent 必须知晓的当前 Cursor 实现限制：
+> 这是 **Cursor adapter 的属性声明**（非 core 限制 · ORD-28）。用户/agent 必须知晓的当前 Cursor 实现状态：
 
-【已公开立场】Cursor sub-agent 的 `model` 字段在 **legacy request-based pricing plan 被 server 端忽略**——subagent 会 silently fallback 到父 model；仅 usage-based plan 的 expanded model selection 已 rolling out。详见 [Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)。
+【已查证 + 实测】**Cursor 3.3+（2026-05 起）sub-agent model 可选**：Task tool `model` 参数接受具体 model slug 并被尊重；`.cursor/agents/*.md` frontmatter 显式 `model:` 同样被尊重（staff 确认「always respect the selected model」，pin 特定版本需写作 `model: [composer-2.5]` 防 silent 解析为 fast）。本仓库 EXP-12 步1 三路差分实测通过（fast / 跨 vendor 高档 / inherit 对照 + 负断言无 silent fallback），见 `docs/pmo/exp-12-spike/exp-12-result.md`。依据 [Cursor Docs Subagents](https://cursor.com/docs/subagents)、[Forum #159981](https://forum.cursor.com/t/prohibition-of-composer-2-for-sub-agents/159981)。
 
-**进一步约束（EXP-04 试跑发现）**：即使在 usage-based plan 下，Cursor Task tool 可调度的 sub-agent model 列表通常**只含 Composer Fast 不含 Composer Standard**——后者价差 30x，前者价差仅约 5x。这影响 model-tier 经济性测算（详见 §失败模式 F1）。
+**仍成立的条件约束**：**legacy request-based plan 无 Max Mode 时**，内置 subagent 一律强制 Composer（by design）；team admin 屏蔽 / plan 不含该模型时配置被覆盖。历史约束（`model` enum 仅 `fast` · [Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)）已随 3.3 失效——EXP-04（2026-05-27）的 cost 测算即在该旧约束下做出，其经济性结论待 EXP-12 步2 复测（外部前提 · ORD-39）。
 
 Dispatch 接口 + adapter 选择见下一节。
 
@@ -144,7 +145,7 @@ core 拿到 artifact 后**自己**跑 validation gate（ORD-22）+ iteration bud
 
 | adapter | isolation | model_selectable | cross_session | 实跑状态 |
 |---------|-----------|------------------|---------------|----------|
-| cursor | ✓ | ✗（ORD-16）| ✓ | EXP-04 验证 |
+| cursor | ✓ | ✓（3.3+ 条件可选 · ORD-16 修订；legacy 无 Max Mode 除外）| ✓ | EXP-04 + EXP-12 步1 验证 |
 | conversation-fallback | ✗ | ✗ | ✗ | EXP-08 实跑 |
 | claude-code | ✓ | ✓ | ? | 骨架 |
 
@@ -181,7 +182,7 @@ core 拿到 artifact 后**自己**跑 validation gate（ORD-22）+ iteration bud
 
 ### Claude Code adapter（骨架 · 待真实环境补验）
 
-`spawn` = native subagents（`.claude/agents/` 或等效 Task tool）；`model_selectable=true`（**无 ORD-16 约束** → model-tier 经济性测算可能不同，但仍是 by-product 非判据 · ORD-20）。待真实 Claude Code 环境补全 + 实跑（EXP-08b · 非阻断）。
+`spawn` = native subagents（`.claude/agents/` 或等效 Task tool）；`model_selectable=true`（无 plan 形态条件约束——比 Cursor adapter 的「3.3+ 条件可选」更干净；model-tier 经济性仍是 by-product 非判据 · ORD-20）。待真实 Claude Code 环境补全 + 实跑（EXP-08b · 非阻断）。
 
 ## Sub-agent dispatch 决策树（ORD-20 · 自创术语）
 
@@ -301,7 +302,7 @@ sub-agent 产出 → 父跑 validation
 
 ## 失败模式（明示反模式 · 含 EXP-04 试跑发现）
 
-- **F1**（EXP-04 试跑发现）：把 sub-agent 主要当 cost 优化工具用 — Cursor 当前 sub-agent 通常只能调度 Composer Fast（5x 价差）不能调度 Composer Standard（30x 价差）；plan 阶段父 agent 用 Opus 的固定成本在小项目中可能占 baseline >1/3，吃掉 model-tier 算术天花板。**对策**：把 sub-agent 用法定位为 context 隔离（视角 C），cost 节省是 by-product；小项目不强求 model-tier；大项目（多 phase / 大 execute）才能稀释 plan 成本
+- **F1**（EXP-04 试跑发现 · 前提已部分过时）：把 sub-agent 主要当 cost 优化工具用 — plan 阶段父 agent 用高档模型的固定成本在小项目中可能占 baseline >1/3，吃掉 model-tier 算术天花板（这条算术洞察与 runtime 无关，持续成立）。**注**：EXP-04 时代「只能调度 Composer Fast」的约束已随 Cursor 3.3 失效（ORD-16 修订 · EXP-12 步1 实测），执行层可 pin 任意可用档位；但经济性阈值待 EXP-12 步2 复测。**对策**：把 sub-agent 用法定位为 context 隔离（视角 C），cost 节省是 by-product；小项目不强求 model-tier；大项目（多 phase / 大 execute）才能稀释 plan 成本
 - **F2**：把所有 task 都塞给 sub-agent 追求 cost 节省 — 违反 §Sub-agent dispatch 决策树；会出现"sub-agent 输出与父 plan 冲突，父无法回看 sub-agent context 修复"→ 重新交付循环反而比父直写贵
 - **F3**：validation criteria 写成"质量好""结构完整"等模糊判据 — sub-agent 会"自我宣告完成"；**对策**：validation 必须可由父 agent 一行 shell/grep 命令判定（ORD-22 三类标准）
 - **F4**：iteration budget 设过大（如 5+）— sub-agent 反复失败时浪费 cost；典型 budget = 2（coder）/ 1（auditor）；失败超 budget 立即 escalate

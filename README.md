@@ -230,7 +230,7 @@ docs/pmo/
 
 | adapter | context 隔离 | model 可选 | 实跑状态 |
 |---------|-------------|-----------|----------|
-| **cursor**（含 3 Mode α/β/γ）| ✓ | ✗（ORD-16）| EXP-04 验证 |
+| **cursor**（含 3 Mode α/β/γ）| ✓ | ✓（3.3+ 条件可选 · ORD-16 修订）| EXP-04 + EXP-12 步1 验证 |
 | **conversation-fallback**（通用兜底）| ✗ | ✗ | EXP-08 实跑 |
 | **claude-code**（骨架）| ✓ | ✓ | 待补验 |
 
@@ -257,7 +257,7 @@ docs/pmo/phase-NN/
 .apm/bus/                  # 仅 Mode β 时（用户人工 shuttle）
 ```
 
-**Cursor adapter 约束**（ORD-16 · `model_selectable=false`）：sub-agent `model` 字段在 legacy request-based plan 被 server 端忽略（详见 [Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)）；usage-based plan 通常也仅可调度 `composer-2.5-fast`（不可 standard）。**Mode 选择会按 plan 类型自动降级到 Mode γ**。其它 adapter（如 claude-code `model_selectable=true`）不受此约束。
+**Cursor adapter 约束**（ORD-16 · 2026-07-07 修订为「3.3+ 条件可选」）：Cursor 3.3+ 起 sub-agent model pin 被尊重（Task tool `model` 参数 / `.cursor/agents/*.md` frontmatter；本仓库 EXP-12 步1 三路差分实测通过，见 `docs/pmo/exp-12-spike/`）。仍成立的条件：**legacy request-based plan 无 Max Mode 时强制 Composer**（此时降级 Mode γ）；team admin 屏蔽 / plan 不含该模型时配置被覆盖。历史「enum 仅 fast」约束（[Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)）已失效；EXP-04 经济性结论待 EXP-12 步2 复测。
 
 **触发词示例**：proj-run · 执行调度 · sub-agent · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · runtime 无关 · Mode α/β/γ · `.cursor/agents/` · message bus · `.apm/bus/` · model-tier
 
