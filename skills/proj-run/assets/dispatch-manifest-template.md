@@ -22,7 +22,7 @@
 | **iteration budget** | validation 失败后的重试次数上限（典型值 **2**；auditor 等只读任务可为 **1**） | ✓ |
 | **escalate** | 超出 budget 时的回退路径（回父 agent / 回 proj-plan 改 plan / 回 proj-shape 开新轮） | ✓ |
 
-**model 字段**：由 proj-run 根据用户 plan 类型（usage-based / legacy）与 Mode α/β/γ 决定；**本模板不指定**具体 model 名（ORD-15）。
+**model 字段**：**本模板不指定**具体 model 名（ORD-15）。由 proj-run 按 `docs/pmo/model-tier.yaml`（若有）→ skill [`model-tier.yaml`](model-tier.yaml) 默认，再结合 Mode α/β/γ 落点。
 
 ### Specialist 角色参考
 
@@ -99,7 +99,7 @@
 |------|------|
 | 版本会过时 | 具体 model 名随 provider 迭代；manifest 是跨阶段承诺，不宜绑定版本 |
 | plan 类型差异 | legacy / usage-based plan 对 sub-agent model 字段支持不同（见 proj-run ORD-16） |
-| 职责分离 | proj-plan **只规划** specialist 类型与 validation；proj-run **负责** Mode α/β/γ 选择与 dispatch |
+| 职责分离 | proj-plan **只规划** specialist 类型与 validation；proj-run **负责** model-tier + Mode α/β/γ 选择与 dispatch |
 
 manifest 正文**禁止**出现具体 model 名；需要说明 model 时写「model 由 proj-run 决定，本模板不指定」即可。
 

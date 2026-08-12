@@ -49,7 +49,7 @@
 | T-01 | _示例：起草 template_ | _由 proj-run 填_ | | | _由 proj-run 填_ | |
 | **累计** | — | — | **_Σ_** | **_Σ_** | — | **_Σ cost_** |
 
-> model 由 proj-run 按 Mode α/β/γ 决定；manifest 不指定具体 model 名，本表回填实际 tier。
+> model 由 proj-run 按 model-tier 配置 + Mode α/β/γ 落点决定；manifest 不指定具体 model 名，本表回填实际 slug。
 
 ---
 

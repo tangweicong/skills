@@ -1,0 +1,16 @@
+# proj-run model-tier 默认配置（skill 内置）
+#
+# 解析顺序（高优先覆盖低优先）：
+#   1. 项目 docs/pmo/model-tier.yaml（若存在）
+#   2. 本文件（skill 默认）
+#
+# 用法：
+#   - planning → 父 agent 规划 / 评审 / analyze / escalate 接手
+#   - execution → Mode α 写入 .cursor/agents/*.md 的 model:；Task tool model 参数；
+#                 Mode γ 执行段提示用户切换到该模型
+#   - dispatch manifest 禁止写具体 model 名（ORD-15 / ORD-21）
+#
+# slug 须为当前 Cursor Task / agents frontmatter 可接受的 model id。
+
+planning: claude-opus-4-8-thinking-high
+execution: cursor-grok-4.5-high-fast

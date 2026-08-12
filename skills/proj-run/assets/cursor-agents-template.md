@@ -2,7 +2,9 @@
 
 > 本文件是 **proj-run** skill 的 **Mode α**（自动 dispatch · usage-based plan）专用模板，演示如何编写 `.cursor/agents/<name>.md` 让 Cursor 父 agent 自动 dispatch sub-agent。
 >
-> **适用**：Cursor **usage-based plan**（扩展 model selection 已 rollout）。**Legacy request-based plan** 用户应转 **Mode γ**（手动 `@opus` / `@composer` 切换），见下方 warning。
+> **适用**：Cursor **usage-based plan**（扩展 model selection 已 rollout）。**Legacy request-based plan** 用户应转 **Mode γ**（按 `model-tier.yaml` 手动切换 planning / execution），见下方 warning。
+>
+> **model 来源**：写 `.cursor/agents/*.md` 时，`model:` 填 **resolved `execution`**（见 [`model-tier.yaml`](model-tier.yaml)；项目可在 `docs/pmo/model-tier.yaml` 覆盖）。
 
 来源 `proj-run/assets/` · 依据 ORD-16 · ORD-21 · Mode α = `.cursor/agents/*.md` + Task tool。
 
@@ -20,8 +22,8 @@ description: "Brief trigger — when parent should delegate (e.g. draft template
 # tools: 可选。限定 sub-agent 可用工具列表；省略则继承父 agent 全部工具
 tools: ["Read", "Write", "StrReplace", "Grep", "Shell"]
 
-# model: 可选。usage-based plan 下指定 sub-agent 模型；legacy plan 被 server 忽略（见 warning 段）
-model: composer-2.5-fast
+# model: 填 resolved model-tier.execution（默认 cursor-grok-4.5-high-fast）
+model: cursor-grok-4.5-high-fast
 
 # is_background: 可选 bool。true = 异步后台运行，父 agent 不阻塞等待
 is_background: false
@@ -47,7 +49,7 @@ description: >-
   config snippets, markdown assets. Do NOT use for read-only audit or codebase
   exploration.
 tools: ["Read", "Write", "StrReplace", "Grep", "Shell"]
-model: composer-2.5-fast
+model: cursor-grok-4.5-high-fast
 is_background: false
 readonly: false
 ---
@@ -83,7 +85,7 @@ You are a Cursor sub-agent dispatched by the parent agent as **specialist:coder*
 | 用户 plan | 推荐 mode | 说明 |
 |----------|-----------|------|
 | Usage-based | **Mode α** | `.cursor/agents/<name>.md` + 父 agent Task tool；`model` 字段生效 |
-| Legacy request-based | **Mode γ** | 父 agent IDE 默认；用户手动 `@opus` / `@composer` 切换；**不依赖** sub-agent `model` 字段 |
+| Legacy request-based | **Mode γ** | 按 model-tier：执行段用 `execution`、规划/评审用 `planning`；**不依赖** sub-agent `model` 字段 |
 
 ---
 
@@ -93,7 +95,7 @@ You are a Cursor sub-agent dispatched by the parent agent as **specialist:coder*
 
 1. 在仓库根目录创建 `.cursor/agents/`（若不存在）
 2. 按 manifest 中 `specialist` slug 命名，如 `template-coder.md`、`plan-auditor.md`
-3. 复制上方 frontmatter 模板 + 正文，填入 `description` 与职责说明
+3. 复制上方 frontmatter 模板 + 正文，填入 `description` 与职责说明；`model:` 用 resolved `execution`
 4. `description` 是父 agent 自动选择 sub-agent 的**唯一依据**——写清何时 delegate、何时不 delegate
 
 ### 2. 父 agent 自动 dispatch（Mode α）
@@ -108,6 +110,6 @@ You are a Cursor sub-agent dispatched by the parent agent as **specialist:coder*
 | | Mode α（本模板） | Mode γ（legacy / 手动） |
 |--|-----------------|------------------------|
 | sub-agent 定义 | `.cursor/agents/*.md` | 无；父 agent IDE 默认 |
-| model 选择 | frontmatter `model` 或 proj-run 策略 | 用户手动 `@opus` / `@composer` |
+| model 选择 | frontmatter `model` = model-tier.execution | 用户按 model-tier 手动切 planning / execution |
 | dispatch 方式 | 父 agent Task tool 自动 | 父 agent 口头指示用户切换模型 |
 | 适用 plan | usage-based | legacy request-based |

@@ -240,7 +240,9 @@ docs/pmo/
 |------|---------|----------|
 | **α**（自动 dispatch）| usage-based plan + 同一 IDE session | `.cursor/agents/<name>.md` + Task tool 直接调用 |
 | **β**（message bus）| 跨 IDE session / 单 sub-agent 输出 > 父 context | `.apm/bus/` 文件级通信（占位 · 无 runtime）|
-| **γ**（手动模型切换）| legacy request-based plan | 父 agent IDE 默认 + 用户手动 `@opus`/`@composer` 切换 |
+| **γ**（手动模型切换）| legacy request-based plan | 按 model-tier：执行用 `execution`、规划/评审用 `planning` |
+
+**Model-tier 配置**：`docs/pmo/model-tier.yaml`（可选）覆盖 skill 默认 [`assets/model-tier.yaml`](./skills/proj-run/assets/model-tier.yaml)。默认 `planning: claude-opus-4-8-thinking-high` / `execution: cursor-grok-4.5-high-fast`。manifest 仍禁止写具体 model 名。
 
 **Validation gate 3 类**：structural（文件存在/字段齐/行数上限）/ lint（validate_skills.py / YAML frontmatter）/ behavioral（关键字 grep / 负向断言）。
 
@@ -253,13 +255,14 @@ docs/pmo/phase-NN/
 ├── acceptance.md          # validation 结果 + token cost + escalate 标记 + GATE 联动
 └── （回写 artifact-index.md）
 
+docs/pmo/model-tier.yaml   # 可选；覆盖 skill 默认 planning/execution
 .cursor/agents/<name>.md   # 仅 Mode α 时
 .apm/bus/                  # 仅 Mode β 时（用户人工 shuttle）
 ```
 
 **Cursor adapter 约束**（ORD-16 · 2026-07-07 修订为「3.3+ 条件可选」）：Cursor 3.3+ 起 sub-agent model pin 被尊重（Task tool `model` 参数 / `.cursor/agents/*.md` frontmatter；本仓库 EXP-12 步1 三路差分实测通过，见 `docs/pmo/exp-12-spike/`）。仍成立的条件：**legacy request-based plan 无 Max Mode 时强制 Composer**（此时降级 Mode γ）；team admin 屏蔽 / plan 不含该模型时配置被覆盖。历史「enum 仅 fast」约束（[Cursor Forum #156736](https://forum.cursor.com/t/task-tool-model-parameter-only-accepts-fast-cannot-specify-model-ids-for-subagents/156736)）已失效；EXP-04 经济性结论待 EXP-12 步2 复测。
 
-**触发词示例**：proj-run · 执行调度 · sub-agent · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · runtime 无关 · Mode α/β/γ · `.cursor/agents/` · message bus · `.apm/bus/` · model-tier
+**触发词示例**：proj-run · 执行调度 · sub-agent · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · runtime 无关 · Mode α/β/γ · `.cursor/agents/` · message bus · `.apm/bus/` · model-tier · model-tier.yaml
 
 **详细说明**：[skills/proj-run/SKILL.md](./skills/proj-run/SKILL.md)
 

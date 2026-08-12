@@ -26,6 +26,7 @@ output: docs/pmo/phase-NN/acceptance.md（含 validation 结果 + token cost + e
         + .cursor/agents/*.md（Mode α 时；usage-based plan）
         + .apm/bus/ 目录（Mode β 时；占位无 runtime）
         + docs/pmo/artifact-index.md 追加（sub-agent 产出登记）
+        + docs/pmo/model-tier.yaml（可选；覆盖 skill 默认 planning/execution）
 pos:    PMP Executing Process Group；与 proj-plan 串联在 PMP Planning 之后
 
 修改本文件后，请同步更新根 README.md 的 4 skill 索引表与 proj-run 详细节（skills/README.md 已于 1.2.0 合并至根 README）。
@@ -157,7 +158,7 @@ core 拿到 artifact 后**自己**跑 validation gate（ORD-22）+ iteration bud
 |------|---------|----------|----------------|---------|
 | **α**（自动 dispatch）| usage-based plan + 同一 IDE session 内 | `.cursor/agents/<name>.md` + 父 agent 用 Task tool 直接调用 sub-agent | usage-based | [`assets/cursor-agents-template.md`](assets/cursor-agents-template.md) |
 | **β**（message bus）| 跨 IDE session / 跨设备 / 单一 sub-agent 输出 > 父 context 承载 / 多 sub-agent 并行协作 | `.apm/bus/` 文件级通信；每个 sub-agent 一个独立 chat session；用户 cp/mv shuttle 消息（APM 原版）或 APM-Auto fork 自动化 | 任意 | [`assets/message-bus-template.md`](assets/message-bus-template.md)（**占位 · 无 runtime**）|
-| **γ**（手动模型切换）| legacy request-based plan + 同一 IDE session | 父 agent 默认 `@composer`；规划/评审节点用户手动 `@opus` 切换；**不**依赖 sub-agent dispatch | legacy request-based | — |
+| **γ**（手动模型切换）| legacy request-based plan + 同一 IDE session | 按 §Model-tier 配置：执行段用 `execution`、规划/评审用 `planning`；**不**依赖 sub-agent dispatch | legacy request-based | — |
 
 #### Mode 选择决策树（Cursor adapter 内部）
 
@@ -184,9 +185,32 @@ core 拿到 artifact 后**自己**跑 validation gate（ORD-22）+ iteration bud
 
 `spawn` = native subagents（`.claude/agents/` 或等效 Task tool）；`model_selectable=true`（无 plan 形态条件约束——比 Cursor adapter 的「3.3+ 条件可选」更干净；model-tier 经济性仍是 by-product 非判据 · ORD-20）。待真实 Claude Code 环境补全 + 实跑（EXP-08b · 非阻断）。
 
+## Model-tier 配置（planning / execution · 可覆盖）
+
+> model 仍归 **execute 层**（ORD-15：manifest **禁止**写具体 model 名）。配置只决定「用哪两档」，不改变 Mode α/β/γ 选择判据。
+
+**解析顺序**（高优先覆盖低优先）：
+
+1. 项目 `docs/pmo/model-tier.yaml`（若存在）
+2. skill 默认 [`assets/model-tier.yaml`](assets/model-tier.yaml)
+
+**默认值**（skill 内置）：
+
+| 键 | 默认 slug | 用途 |
+|----|-----------|------|
+| `planning` | `claude-opus-4-8-thinking-high` | 父 agent 规划 / 评审 / analyze / escalate 接手 |
+| `execution` | `cursor-grok-4.5-high-fast` | Mode α：`.cursor/agents/*.md` 的 `model:` + Task `model`；Mode γ：执行段切换目标 |
+
+**落点**：
+
+- Mode α：生成/更新 `.cursor/agents/*.md` 时写入 `model: <execution>`；Task tool `spawn` 传同一 slug
+- Mode γ：提示用户执行段切到 `execution`、规划/评审切到 `planning`
+- acceptance.md §token cost 回填实际使用的 slug
+- 项目覆盖示例：复制 `assets/model-tier.yaml` → `docs/pmo/model-tier.yaml` 后改 slug
+
 ## Sub-agent dispatch 决策树（ORD-20 · 自创术语）
 
-> 决定一个 task **是否该交给 sub-agent**（不是"该交给哪个 model"——那是 model-tier 问题，由 3 Mode 决定）。
+> 决定一个 task **是否该交给 sub-agent**（不是"该交给哪个 model"——那是 §Model-tier 配置 + Mode 落点问题）。
 
 **第一判据 = task 输出是否需要被父 agent 持续回溯**（依据 [Claude Code agents docs](https://code.claude.com/docs/en/agents.md) "side task" 定义）：
 
@@ -220,7 +244,7 @@ core 拿到 artifact 后**自己**跑 validation gate（ORD-22）+ iteration bud
 | **iteration budget** | 重试次数上限（典型 2；auditor 1）|
 | **escalate** | 超出 budget 时的回退路径（回父 / 回 proj-plan / 回 proj-shape）|
 
-**与 ORD-15 的关系**：proj-plan 的 plan-template.md 中 `## Sub-agent dispatch manifest` 段是承诺字段（v0 可选；EXP-04 passed 后升级为强制按本 5 字段闭环）。proj-plan 只规划 specialist 类型与 validation；**model 选择由 proj-run 按 3 Mode 表决定，manifest 内禁止指定具体 model 名**。
+**与 ORD-15 的关系**：proj-plan 的 plan-template.md 中 `## Sub-agent dispatch manifest` 段是承诺字段（v0 可选；EXP-04 passed 后升级为强制按本 5 字段闭环）。proj-plan 只规划 specialist 类型与 validation；**model 选择由 proj-run 按 §Model-tier 配置 + 3 Mode 落点决定，manifest 内禁止指定具体 model 名**。
 
 ## Validation gate（ORD-22 三类 · 强制）
 
@@ -252,21 +276,23 @@ sub-agent 产出 → 父跑 validation
 - proj-plan 已交付 `docs/pmo/phase-NN/plan.md`（含 `## Sub-agent dispatch manifest` 段 · 5 字段闭环）
 - GATE-3 已通过（用户审过 plan + dispatch manifest）
 - 父 agent 已选定 dispatch adapter + 其内部策略（§Adapter 选择 → 如 Cursor adapter 的 Mode α/β/γ）
+- 已 resolve §Model-tier（`docs/pmo/model-tier.yaml` → 否则 skill `assets/model-tier.yaml`）
 
 ### 1. Dispatch 准备
 
 - 读 plan.md `## 任务` 表 + `## Sub-agent dispatch manifest` 段
 - 对每条 sub-agent task 跑 §Sub-agent dispatch 决策树确认确实该 sub-agent（防止"为了用而用"）
 - 准备 dispatch prompt：必须 self-contained（APM 原则：含 objective、context、reference 文件路径、validation 自检命令）
+- Mode α：确保 `.cursor/agents/*.md` 的 `model:` = resolved `execution`
 
 ### 2. Dispatch 与 validation 循环
 
 按 plan.md `## 活动依赖` 节顺序（典型串行；视场景可并行）逐 task 执行：
 
 1. **Dispatch**：经选定 adapter `spawn` worker（接口层）
-   - Cursor adapter — Mode α：父用 Task tool 调 `.cursor/agents/<name>.md` 配置的 sub-agent
+   - Cursor adapter — Mode α：父用 Task tool 调 `.cursor/agents/<name>.md`；`model` = resolved `execution`
    - Cursor adapter — Mode β：父写 task 到 `.apm/bus/tasks/<task-id>.md`；通知用户开新 chat session 接手
-   - Cursor adapter — Mode γ：父 agent IDE 默认；用户 `@composer` 切换；任务对话内完成
+   - Cursor adapter — Mode γ：执行段切到 `execution`、规划/评审切到 `planning`；任务对话内完成
    - conversation-fallback：父在分隔 scratch 文件内扮演 specialist；claude-code：native subagents
 2. **Validation**（core · 不经 adapter）：`collect` 产出后，父跑 §Validation gate 3 类
 3. **Iteration**：失败 → 按 ORD-21 iteration budget 重试；用尽 → escalate
@@ -315,7 +341,7 @@ sub-agent 产出 → 父跑 validation
 
 ## 触发词
 
-proj-run · 执行调度 · sub-agent · 子代理 · subagent dispatch · model-tier · 模型分层 · Opus 规划 · Composer 执行 · phase 执行 · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · conversation-fallback · runtime 无关 · Mode α · Mode β · Mode γ · cursor agents · `.cursor/agents/` · message bus · `.apm/bus/` · APM · iteration budget · escalate · runway
+proj-run · 执行调度 · sub-agent · 子代理 · subagent dispatch · model-tier · 模型分层 · model-tier.yaml · Opus 规划 · Grok 执行 · Cursor Grok · phase 执行 · dispatch manifest · validation gate · dispatch adapter · DispatchCapability · conversation-fallback · runtime 无关 · Mode α · Mode β · Mode γ · cursor agents · `.cursor/agents/` · message bus · `.apm/bus/` · APM · iteration budget · escalate · runway
 
 ## 不触发本 skill
 
@@ -328,6 +354,7 @@ proj-run · 执行调度 · sub-agent · 子代理 · subagent dispatch · model
 
 | 文档 | 模板 |
 |------|------|
+| Model-tier（planning / execution 默认 + 项目覆盖）| [`assets/model-tier.yaml`](assets/model-tier.yaml) |
 | Dispatch manifest（5 字段闭环 · ORD-21）| [`assets/dispatch-manifest-template.md`](assets/dispatch-manifest-template.md) |
 | Acceptance（validation 结果 + token cost + escalate · ORD-15 输出契约）| [`assets/acceptance-template.md`](assets/acceptance-template.md) |
 | Cursor agents（Mode α · YAML frontmatter + legacy warning · ORD-19）| [`assets/cursor-agents-template.md`](assets/cursor-agents-template.md) |
