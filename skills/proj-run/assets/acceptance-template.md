@@ -40,6 +40,17 @@
 
 **validation 汇总**：☐ 全 pass · ☐ 有 fail（见 §3 escalate）
 
+### 挣得进度（0/100 挣得记账 · ORD-41）
+
+> EV 只认 ✓：任务勾 ✓ 的唯一判据 = 其上表 validation criteria **全部 pass**（EV=PV）；任一 fail → EV=0。**禁 %complete 自报**。阶段进度口径 = **EV% = Σ已✓PV / ΣPV**。
+
+| 任务 | PV（来自 plan.md） | validation | EV（0/PV） |
+|------|--------------------|-----------|------------|
+| T-01 | 1 | ☐ pass / ☐ fail | 0 / 1 |
+| 合计 | ΣPV | — | **EV% = … / ΣPV** |
+
+> EV% 是偏差仪表不是考核口径：EV=0 的任务走 §3 escalate 流程；phase 级累计失败 >3 → circuit breaker（原流程不动，ORD-41 仅补显式账本）。
+
 ---
 
 ## 2 · token cost（sub-agent dispatch · ORD-15）

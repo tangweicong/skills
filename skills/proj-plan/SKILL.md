@@ -230,6 +230,8 @@ docs/pmo/
 2. 写 `tailoring-decision.md`：建议模式 T/F、产物清单、规则 ID。
 3. **GATE-0**：用户确认；agent **不得**单方面定模式。
 
+> **拍板前 teach-back（ORD-44）**：GATE-0/1/2/3 交人确认前，AI 用 1–3 句复述「当前要拍什么 + 拍下去的后果」，人核对无误后再拍板；复述有偏先纠正。只在拍板点使用，全程使用 = 啰嗦。
+
 | 模式 | Round B 生成 |
 |------|--------------|
 | **T** | charter, wbs, phase-roadmap, **integration-plan**, **change-log**, artifact-index |

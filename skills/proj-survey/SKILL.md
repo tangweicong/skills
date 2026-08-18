@@ -145,6 +145,8 @@ pos: brownfield 接管入口；与正向 proj-shape 并列；上游无、下游 
 | **A · 可 plan** | intent 可信重建 | [survey-handoff](assets/survey-handoff-template.md)：已完成范围（既成约束）+ 未完成工作（WBS 三态种子）| → `proj-plan`（brownfield 入口）|
 | **B · 仅 audit** | intent 不可重建 | [audit-report](assets/audit-report-template.md)：内部一致性 findings + 置信度（**不作保证**）| 终端；可选回 `proj-shape` 补 intent |
 
+> **存量量化适用规则（ORD-45）**：接管/存量项目——行为与规范类机制（ORD-42/44 + 维度表可选段）**自动生效**；数据类（ORD-41 挣得记账）**向前生效**（新 phase 自动带 PV 列 / 在飞 phase 可选补列 / 已结束 phase 不回填）；baseline 后首个决策点（GATE-S / GATE-0）可选跑一次维度表 pass 探测遗留未决/冲突。量化是仪表不是档案。
+
 ## 分支判据（EXP-06 · 算子化 · 仍 provisional）
 
 > **provisional**：4 维由 EXP-05 dogfood（易端）初定；EXP-06 已将其**算子化**并验证「可操作 + 可复现 + 区分力」（易端→plan 复现 EXP-05、合成难例→audit 正确分开），但**难端「与独立人判一致」仍待真实 repo 压测**。用前仍以 GATE-S 兜底。详见 `docs/pmo/proj-06-spike/`。
