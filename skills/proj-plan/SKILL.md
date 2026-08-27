@@ -67,6 +67,15 @@ proj-plan 借鉴 **SDD harness 范式**（spec-as-truth、constitution-as-guardr
 
 **推迟 ≠ 省略 artifact**：JIT 约束的是*展开时机与深度*，不是*是否产出该 artifact*（否则撞 §失败模式「仅 WBS 无 phase-roadmap → 不完整」）。
 
+### 在飞工作量控制（ORD-52 · 执行侧）
+
+> **证据强度声明（必读）**：本条依据 [Kanban Guide](https://kanbanguides.org/english/) 的规范要求 + 用户自述症状，**无本项目实测数据**（讨论侧有实测：图谱线停滞 15 轮）。按 ORD-51 的教训——**无机器检查的界较弱**——本条为**纪律级**，刻意不进 validator（proj-plan 服务任意项目，本仓库 validator 够不着其 `docs/pmo/`）。若日后出现执行侧实测数据，再考虑升级。
+
+- **WIP 单位** = 同时处于「进行中」的 phase 数（brownfield 另含 WBS 三态里的 `进行中` 项）。
+- **控制方式**：rolling wave 本就隐含「一次展开一个 phase」；本条把它**显式化为一个数字**并写进 `wbs.md` / `phase-roadmap.md` 表头——**写在使用点上**（ORD-51 实测：可数的数字写在使用点的约束 51 天零违反，定性措辞写在别处的涨了 4.21 倍）。**默认 1**，项目可自定。
+- **例外条款（= 中断协议 · 一次性写入，非每轮成本）**：允许插入新工作，但被中断的 phase / WBS 项**必须显式置为「暂停」并在 `change-log.md` 记一行**（何时中断、被什么中断、恢复条件）。**禁止静默搁置。**
+- **不做的事**：不新增 artifact、不新增人读文件（INV-01 的 ≤5 不动）、不设审批流。
+
 本原则**解释**既有结构：INV-02（细任务仅在 phase plan）、phase-roadmap「无任务表」、WBS 仅 L1–L2、"L3+ rolling 进 phase plan" 均为 rolling wave 的实现。与裁剪轴正交——**模式 T/F 管「做哪些 artifact」（广度轴）；JIT 管「每个 artifact 何时展开到多深」（时间/深度轴）**。
 
 ## 立场声明（借鉴 / 自创）

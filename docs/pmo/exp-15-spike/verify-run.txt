@@ -1,0 +1,53 @@
+======== ORD-48 强制范围：ID ↔ 标题 反查 ========
+[OK] doi:10.1056/NEJMsa0810119  2009  A Surgical Safety Checklist to Reduce Morbidity and Mortality in a Global P
+[OK] doi:10.1056/nejmsa1308261  2014  Introduction of Surgical Safety Checklists in Ontario, Canada
+[??] doi:10.1258/095148405774518615  2005  Involuntary automaticity: a work-system induced risk to safe health care
+       引用处所述关键词=「checklist」→ 需人工确认是否同一文献
+[??] doi:10.1145/345513.345233  2000  Instructions and descriptions
+       引用处所述关键词=「Cognitive Dimensions」→ 需人工确认是否同一文献
+[OK] doi:10.1007/s10664-014-9314-z  2014  Do developers benefit from requirements traceability when evolving and main
+[OK] doi:10.1007/s11251-009-9102-0  2009  Expertise reversal effect and its instructional implications: introduction 
+[??] doi:10.7771/1932-6246.1093  2011  Quality, Conformity, and Conflict: Questioning the Assumptions of Osborn’s 
+       引用处所述关键词=「fixation」→ 需人工确认是否同一文献
+[OK] doi:10.1002/acp.1699  2010  Collaborative fixation: Effects of others' ideas on brainstorming
+[OK] doi:10.1162/tacl_a_00638  2024  Lost in the Middle: How Language Models Use Long Contexts
+[OK] arxiv:2406.16008  2024  Found in the Middle: Calibrating Positional Attention Bias Improves Long Co
+
+======== 补充（超出 ORD-48 范围）：其余 URL 存活 ========
+[200] https://www.ices.on.ca/publications/journal-articles/introduction-of-surgical-safety-checkli
+[200] https://joelhooks.com/the-checklist-manifesto/
+[200] https://www.tosummarise.com/book-summary-the-checklist-manifesto-by-atul-gawande/
+[200] https://grahammann.net/book-notes/the-checklist-manifesto-atul-gawande
+[200] https://ject.edpsciences.org/articles/ject/full_html/2024/01/ject230046/ject230046.html
+[200] https://www.cl.cam.ac.uk/~afb21/publications/CT2001.pdf
+[403] https://www.sciencedirect.com/science/article/abs/pii/0142694X9190003F
+[403] https://dl.designresearchsociety.org/cgi/viewcontent.cgi?article=1716&context=drs-conference
+[200] https://www.infoq.com/news/2008/06/agile-traceability-matrix/
+[200] https://www.jamasoftware.com/requirements-management-guide/requirements-traceability/require
+[200] https://www.jsums.edu/english/files/2014/03/nuckles.pdf
+[200] https://eric.ed.gov/?id=EJ880291
+[200] https://cogscisci.wordpress.com/wp-content/uploads/2019/08/sweller-guidance-fading.pdf
+[200] https://basecamp.com/shapeup/2.1-chapter-07
+[200] https://justinjackson.ca/nobacklogs
+[200] https://arorian.com/manual-mbse-alm-traceability/
+[403] https://www.researchgate.net/publication/227683493_Collaborative_Fixation_Effects_of_Others_
+[200] https://ecologylab.net/research/publications/constrainingEffects.pdf
+[200] https://www.ronjeffries.com/xprog/articles/practices/pracnotneed/
+[200] https://martinfowler.com/bliki/EvolutionarySOA.html
+[200] https://sync-o.io/blog/stale-documentation-engineering
+[200] https://slite.com/learn/dangers-of-stale-documentation
+[200] https://jpattonassociates.com/the-new-backlog/
+[200] http://flowcon.org/dl/flowcon-sanfran-2014/slides/JeffPatton_WhyDocumentsFailAndWhatYouCanDo
+[200] https://jpattonassociates.com/wp-content/uploads/2015/03/story_essentials_quickref.pdf
+[200] https://www.infoq.com/news/2009/03/story-map/
+[200] https://makeitnice.de/en/frameworks/story-mapping/
+[200] https://antoinepeze.com/en/story-mapping-workshop/
+[200] https://www.atlassian.com/agile/product-management/story-mapping
+[200] https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+[200] https://platform.claude.com/docs/en/build-with-claude/compaction
+[200] https://aclanthology.org/2024.tacl-1.9/
+[200] https://hivetrail.com/blog/context-rot-chroma-study
+[200] https://www.reactify-solutions.com/articles/context-engineering-ai-agents-2026
+[403] https://glasp.co/articles/context-rot-rag-long-context-hybrid
+
+非存活（403/405/999 视为反爬非失效）: 0/35

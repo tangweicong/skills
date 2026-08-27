@@ -19,6 +19,14 @@ SKIP_DIRS = {"template", "_template"}
 
 PIPELINE_STAGES = {"exploring", "deciding", "ready-for-implementation", "blocked"}
 ID_PATTERN = re.compile(r"(?:INV|ORD|EXP)-\d+[a-z]?")
+STATUS_MAX_CHARS = 400
+BLOCKED_ON_MAX_CHARS = 30
+THREAD_FIELDS = {"id", "state", "last_round", "blocked_on"}
+THREAD_STATES = {"open", "blocked", "paused", "closed"}
+THREAD_ID_PATTERN = re.compile(r"[a-z0-9][a-z0-9-]*")
+THREAD_WIP_MAX = 3
+THREAD_WIP_STATES = {"open", "blocked"}
+EXP_TABLE_HEADING = "## 待验证尝试"
 SKILLS_REF_PATTERN = re.compile(r"skills/([a-z0-9][a-z0-9-]*)/")
 
 
@@ -77,10 +85,20 @@ def _extract_first_yaml_block(text: str) -> str | None:
 
 
 def _exp_table_status(decisions_text: str) -> dict[str, str]:
-    """Map each EXP id in DECISIONS to its 状态 cell (last column of its row)."""
+    """Map each EXP id to its 状态 cell (last column) in the §待验证尝试 table only.
+
+    Scoping to that one section matters: several EXP ids also have rows in
+    §外部前提登记与复查协议, whose last column is a review note rather than an
+    execution status. That table appears later in the file, so an unscoped scan
+    silently overwrote the real status and made C2 miss closed experiments.
+    """
     status: dict[str, str] = {}
+    in_section = False
     for line in decisions_text.splitlines():
-        if not line.lstrip().startswith("| EXP-"):
+        if line.startswith("## "):
+            in_section = line.startswith(EXP_TABLE_HEADING)
+            continue
+        if not in_section or not line.lstrip().startswith("| EXP-"):
             continue
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
         if len(cells) < 2:
@@ -104,8 +122,64 @@ def _sync_section_ids(round_text: str) -> set[str]:
     return ids
 
 
+def _check_thread(entry: object) -> list[str]:
+    """C6: a thread row may only hold bounded types — never a sentence."""
+    if not isinstance(entry, dict):
+        return [f"cross-artifact[C6]: thread entry must be a mapping, got {type(entry).__name__}"]
+    tid = entry.get("id")
+    errors: list[str] = []
+    if not isinstance(tid, str) or not THREAD_ID_PATTERN.fullmatch(tid):
+        errors.append(f"cross-artifact[C6]: thread id '{tid}' must match {THREAD_ID_PATTERN.pattern}")
+    if set(entry) != THREAD_FIELDS:
+        errors.append(
+            f"cross-artifact[C6]: thread '{tid}' fields {sorted(entry)} != {sorted(THREAD_FIELDS)}"
+        )
+    if entry.get("state") not in THREAD_STATES:
+        errors.append(
+            f"cross-artifact[C6]: thread '{tid}' state '{entry.get('state')}' not in {sorted(THREAD_STATES)}"
+        )
+    if not isinstance(entry.get("last_round"), int):
+        errors.append(f"cross-artifact[C6]: thread '{tid}' last_round must be an int")
+    blocked_on = entry.get("blocked_on")
+    if not isinstance(blocked_on, str):
+        errors.append(f"cross-artifact[C6]: thread '{tid}' blocked_on must be a string")
+    elif len(blocked_on) > BLOCKED_ON_MAX_CHARS:
+        errors.append(
+            f"cross-artifact[C6]: thread '{tid}' blocked_on is {len(blocked_on)} chars "
+            f"(max {BLOCKED_ON_MAX_CHARS})"
+        )
+    return errors
+
+
+def report_thread_ages() -> list[str]:
+    """Derive each thread's stall age instead of storing it, so it cannot go stale.
+
+    Age is the number the human actually wants ("what's stuck?") and it existed
+    nowhere in the system before; printing it here puts it at the point of use.
+    """
+    if not DECISIONS_MD.is_file():
+        return []
+    yaml_body = _extract_first_yaml_block(DECISIONS_MD.read_text(encoding="utf-8"))
+    try:
+        threads = yaml.safe_load(yaml_body)["pipeline-state"]["threads"]
+    except Exception:  # noqa: BLE001 - purely informational; never block on it
+        return []
+    rounds = [int(m.group(1)) for p in DECISIONS_MD.parent.glob("*.md")
+              if (m := re.match(r"(\d{2})-", p.name))]
+    if not rounds or not isinstance(threads, list):
+        return []
+    latest = max(rounds)
+    lines = [f"threads (round {latest}):"]
+    for t in threads:
+        age = latest - t["last_round"]
+        stall = f" · 停滞 {age} 轮" if t["state"] != "closed" and age else ""
+        blocked = f" · blocked_on: {t['blocked_on']}" if t.get("blocked_on") else ""
+        lines.append(f"  {t['id']:<14} {t['state']:<8} r{t['last_round']}{stall}{blocked}")
+    return lines
+
+
 def validate_cross_artifact() -> list[str]:
-    """Cross-artifact consistency checks (C1–C4); see docs/discuss/15-*.md."""
+    """Cross-artifact consistency checks (C1–C7); see docs/discuss/15-*.md, 33-*.md."""
     errors: list[str] = []
 
     if not DECISIONS_MD.is_file():
@@ -137,6 +211,38 @@ def validate_cross_artifact() -> list[str]:
                 errors.append("cross-artifact[C1]: pipeline-state.pending_exp must be a list")
         elif yaml_body is not None:
             errors.append("cross-artifact[C1]: first ```yaml``` block has no 'pipeline-state' mapping")
+
+    # C5/C6: pipeline-state entropy bounds; see docs/discuss/33-*.md.
+    # ORD-32 bounded the ≤12-line summary but left `status` unbounded, so all
+    # pressure migrated there (284 -> 1195 chars in 51 days). Both bounds are
+    # pure counting/type checks: zero false positives, inside the ORD-33 line.
+    if pipeline_state is not None:
+        status = pipeline_state.get("status")
+        if isinstance(status, str) and len(status) > STATUS_MAX_CHARS:
+            errors.append(
+                f"cross-artifact[C5]: pipeline-state.status is {len(status)} chars "
+                f"(max {STATUS_MAX_CHARS}); it is an index, not a narrative — "
+                f"move prose to §当前态摘要 / §变更日志"
+            )
+        threads = pipeline_state.get("threads")
+        if threads is not None:
+            if not isinstance(threads, list):
+                errors.append("cross-artifact[C6]: pipeline-state.threads must be a list")
+            else:
+                for entry in threads:
+                    errors.extend(_check_thread(entry))
+                # C7: in-flight thread count. `paused`/`closed` are explicit decisions
+                # to set work down and do not count — so opening thread N+1 forces that
+                # decision instead of letting a thread stall silently (graph: 15 rounds).
+                in_flight = [
+                    e["id"] for e in threads
+                    if isinstance(e, dict) and e.get("state") in THREAD_WIP_STATES
+                ]
+                if len(in_flight) > THREAD_WIP_MAX:
+                    errors.append(
+                        f"cross-artifact[C7]: {len(in_flight)} threads in flight "
+                        f"(max {THREAD_WIP_MAX}): {in_flight} — pause or close one first"
+                    )
 
     # C2: each pending_exp id exists in the EXP table and is still open.
     exp_status = _exp_table_status(decisions_text)
@@ -220,8 +326,11 @@ def main(argv: list[str]) -> int:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    suffix = " + cross-artifact (C1–C4)" if cross_checked else ""
+    suffix = " + cross-artifact (C1–C7)" if cross_checked else ""
     print(f"ok: {len(skill_dirs)} skill(s) validated{suffix}")
+    if cross_checked:
+        for line in report_thread_ages():
+            print(line)
     return 0
 
 

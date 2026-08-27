@@ -1,0 +1,38 @@
+{
+ "视角R_红队": [
+  "https://basecamp.com/shapeup/2.1-chapter-07",
+  "https://justinjackson.ca/nobacklogs",
+  "https://www.jamasoftware.com/requirements-management-guide/requirements-traceability/requirements-traceability-matrix-pros-and-cons/",
+  "https://arorian.com/manual-mbse-alm-traceability/",
+  "https://doi.org/10.7771/1932-6246.1093",
+  "https://doi.org/10.1002/acp.1699",
+  "https://www.researchgate.net/publication/227683493_Collaborative_Fixation_Effects_of_Others'_Ideas_on_Brainstorming",
+  "https://ecologylab.net/research/publications/constrainingEffects.pdf",
+  "https://www.ronjeffries.com/xprog/articles/practices/pracnotneed/",
+  "https://martinfowler.com/bliki/EvolutionarySOA.html",
+  "https://sync-o.io/blog/stale-documentation-engineering",
+  "https://slite.com/learn/dangers-of-stale-documentation"
+ ],
+ "视角A_Patton": [
+  "https://jpattonassociates.com/the-new-backlog/",
+  "http://flowcon.org/dl/flowcon-sanfran-2014/slides/JeffPatton_WhyDocumentsFailAndWhatYouCanDoAboutIt.pdf",
+  "https://jpattonassociates.com/wp-content/uploads/2015/03/story_essentials_quickref.pdf",
+  "https://www.infoq.com/news/2009/03/story-map/",
+  "https://makeitnice.de/en/frameworks/story-mapping/",
+  "https://antoinepeze.com/en/story-mapping-workshop/",
+  "https://www.atlassian.com/agile/product-management/story-mapping",
+  "https://www.linkedin.com/posts/jakubzalas_i-re-read-the-introduction-to-user-story-activity-7359456584197963776-Sjmw"
+ ],
+ "视角B_上下文工程": [
+  "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+  "https://platform.claude.com/cookbook/tool-use-context-engineering-context-engineering-tools",
+  "https://platform.claude.com/docs/en/build-with-claude/compaction",
+  "https://aclanthology.org/2024.tacl-1.9/",
+  "https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00638/119630/Lost-in-the-Middle-How-Language-Models-Use-Long",
+  "https://arxiv.org/pdf/2406.16008",
+  "https://hivetrail.com/blog/context-rot-chroma-study",
+  "https://www.reactify-solutions.com/articles/context-engineering-ai-agents-2026",
+  "https://glasp.co/articles/context-rot-rag-long-context-hybrid",
+  "https://www.zenml.io/llmops-database/context-rot-evaluating-llm-performance-degradation-with-increasing-input-tokens"
+ ]
+}
